@@ -64,7 +64,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	// collect drone.yml files
 	files := map[string]string{}
 	order := []string{}
-	tested := map[string]bool{}
+	cache := map[string]bool{}
 	for _, file := range changes.Files {
 		dir := *file.Filename
 		if !strings.HasPrefix(dir, "/") {
@@ -77,11 +77,11 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 			file := path.Join(dir, req.Repo.Config)
 
 			// check if file has already been checked
-			_, ok := tested[file]
+			_, ok := cache[file]
 			if ok {
 				continue
 			} else {
-				tested[file] = true
+				cache[file] = true
 			}
 
 			// check file on github
