@@ -55,7 +55,14 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	}
 
 	// get repo changes
-	changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, req.Build.Before, req.Build.After)
+	before := req.Build.Before
+	after := req.Build.After
+	if req.Build.Fork != "" {
+		user := strings.SplitN(req.Build.Fork, "/", 2)[0]
+		before = fmt.Sprintf("%s:%s", req.Repo.Name, req.Repo.Branch)
+		after = fmt.Sprintf("%s:%s", user, req.Build.Source)
+	}
+	changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, after)
 	if err != nil {
 		logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
 		return nil, err
