@@ -12,6 +12,7 @@ import (
 
 type (
 	spec struct {
+		Concat  bool   `envconfig:"PLUGIN_CONCAT" default:false`
 		Debug   bool   `envconfig:"PLUGIN_DEBUG"`
 		Address string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret  string `envconfig:"PLUGIN_SECRET"`
@@ -43,6 +44,7 @@ func main() {
 		plugin.New(
 			spec.Server,
 			spec.Token,
+			spec.Concat,
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

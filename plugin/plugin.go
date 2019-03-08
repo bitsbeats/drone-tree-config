@@ -3,26 +3,30 @@ package plugin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path"
 	"strings"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
+
 	"github.com/google/go-github/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
 
-func New(server, token string) config.Plugin {
+func New(server, token string, concat bool) config.Plugin {
 	return &plugin{
 		server: server,
 		token:  token,
+		concat: concat,
 	}
 }
 
 type plugin struct {
 	server string
 	token  string
+	concat bool
 }
 
 func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, error) {
@@ -57,7 +61,10 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		return nil, err
 	}
 
-	// collect all directories with changes
+	// collect drone.yml files
+	files := map[string]string{}
+	order := []string{}
+	tested := map[string]bool{}
 	for _, file := range changes.Files {
 		dir := *file.Filename
 		if !strings.HasPrefix(dir, "/") {
@@ -69,19 +76,50 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 			dir = path.Join(dir, "..")
 			file := path.Join(dir, req.Repo.Config)
 
+			// check if file has already been checked
+			_, ok := tested[file]
+			if ok {
+				continue
+			} else {
+				tested[file] = true
+			}
+
 			// check file on github
 			content, err := p.getGithubFile(ctx, req, client, file)
 			if err != nil {
 				logrus.Infof("Unable to load file: %s %v", file, err)
 			} else {
 				logrus.Infof("Found %s/%s %s", req.Repo.Namespace, req.Repo.Name, file)
-				return &drone.Config{Data: content}, nil
+				order = append(order, file)
+				files[file] = content
 			}
 		}
 	}
 
 	// no file found
-	return nil, errors.New("Did not found a .drone.yml")
+	if len(files) == 0 {
+		return nil, errors.New("Did not found a .drone.yml")
+	}
+
+	// return first if concat is false otherwise return all as multi-machine
+	content := ""
+	if !p.concat {
+		fileName := order[0]
+		logrus.Infof("Only shipping first match: %s", fileName)
+		content = files[fileName]
+	} else {
+		for _, fileName := range order {
+			fileContent := files[fileName]
+			fileName = fmt.Sprintf("# .drone.yml origin: %s\n", fileName)
+			if content != "" {
+				content += "\n---\n"
+			}
+			content += fileName + fileContent + "\n"
+		}
+
+	}
+
+	return &drone.Config{Data: content}, nil
 }
 
 // get the contents of a file on github, if the file is not found throw an error

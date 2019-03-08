@@ -54,7 +54,7 @@ func TestPlugin(t *testing.T) {
 		},
 	}
 
-	plugin := New(ts.URL, mockToken)
+	plugin := New(ts.URL, mockToken, false)
 	config, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -64,4 +64,6 @@ func TestPlugin(t *testing.T) {
 	if want, got := "CORRECT\n", config.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
 	}
+
+	// TODO: add tests for concat
 }
