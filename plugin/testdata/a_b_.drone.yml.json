@@ -2,7 +2,7 @@
   "name": ".drone.yml",
   "path": "a/b/.drone.yml",
   "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-  "size": 7,
+  "size": 8,
   "url": "https://api.github.com/repos/foosinn/dronetest/contents/a/b/.drone.yml?ref=8ecad91991d5da985a2a8dd97cc19029dc1c2899",
   "html_url": "https://github.com/foosinn/dronetest/blob/8ecad91991d5da985a2a8dd97cc19029dc1c2899/a/b/.drone.yml",
   "git_url": "https://api.github.com/repos/foosinn/dronetest/git/blobs/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
