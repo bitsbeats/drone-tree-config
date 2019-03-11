@@ -61,7 +61,7 @@ func TestPlugin(t *testing.T) {
 		return
 	}
 
-	if want, got := "CORRECT\n", config.Data; want != got {
+	if want, got := "CORRECT\n\n", config.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
 	}
 

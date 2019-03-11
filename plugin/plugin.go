@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"errors"
-	"fmt"
 	"path"
 	"strconv"
 	"strings"
@@ -32,7 +31,6 @@ type plugin struct {
 
 func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, error) {
 	// log
-	logrus.Infof("Handling %s %s: %s to %s", req.Repo.Namespace, req.Repo.Name, req.Build.Before, req.Build.After)
 	logrus.Debugf("Build: %+v", req.Build)
 	logrus.Debugf("Repo: %+v", req.Repo)
 
@@ -88,8 +86,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	}
 
 	// collect drone.yml files
-	files := map[string]string{}
-	order := []string{}
+	configData := ""
 	cache := map[string]bool{}
 	for _, file := range changedFiles {
 		if !strings.HasPrefix(file, "/") {
@@ -111,42 +108,30 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 				cache[file] = true
 			}
 
-			// check file on github
-			content, err := p.getGithubFile(ctx, req, client, file)
+			// check file on github and append
+			fileContent, err := p.getGithubFile(ctx, req, client, file)
 			if err != nil {
 				logrus.Debugf("Unable to load file: %s %v", file, err)
 			} else {
 				logrus.Infof("Found %s/%s %s", req.Repo.Namespace, req.Repo.Name, file)
-				order = append(order, file)
-				files[file] = content
+				if configData != "" {
+					configData += "\n---\n"
+				}
+				configData += fileContent + "\n"
+				if !p.concat {
+					logrus.Info("Concat is disabled. Using first .drone.yaml.")
+					break
+				}
 			}
 		}
 	}
 
 	// no file found
-	if len(files) == 0 {
+	if configData == "" {
 		return nil, errors.New("Did not found a .drone.yml")
 	}
 
-	// return first if concat is false otherwise return all as multi-machine
-	content := ""
-	if !p.concat {
-		fileName := order[0]
-		logrus.Infof("Only shipping first match: %s", fileName)
-		content = files[fileName]
-	} else {
-		for _, fileName := range order {
-			fileContent := files[fileName]
-			fileName = fmt.Sprintf("# .drone.yml origin: %s\n", fileName)
-			if content != "" {
-				content += "\n---\n"
-			}
-			content += fileName + fileContent + "\n"
-		}
-
-	}
-
-	return &drone.Config{Data: content}, nil
+	return &drone.Config{Data: configData}, nil
 }
 
 // get the contents of a file on github, if the file is not found throw an error
