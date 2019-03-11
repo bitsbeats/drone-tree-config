@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path"
+	"strconv"
 	"strings"
 
 	"github.com/drone/drone-go/drone"
@@ -57,29 +58,45 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	}
 
 	// get repo changes
-	before := req.Build.Before
-	after := req.Build.After
+	changedFiles := []string{}
 	if req.Build.Fork != "" {
-		user := strings.SplitN(req.Build.Fork, "/", 2)[0]
-		before = fmt.Sprintf("%s:%s", req.Repo.Name, req.Repo.Branch)
-		after = fmt.Sprintf("%s:%s", user, req.Build.Source)
-	}
-	changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, after)
-	if err != nil {
-		logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
-		return nil, err
+		// use fork api to get changed files
+		pullRequestId, err := strconv.Atoi(strings.Split(req.Build.Ref, "/")[2])
+		if err != nil {
+			logrus.Errorf("Unable to get pull request id: %v", err)
+			return nil, err
+		}
+		opts := github.ListOptions{}
+		files, _, err := client.PullRequests.ListFiles(ctx, req.Repo.Namespace, req.Repo.Name, pullRequestId, &opts)
+		if err != nil {
+			logrus.Errorf("Unable to fetch diff for Pull request: %v", err)
+		}
+		for _, file := range files {
+			changedFiles = append(changedFiles, *file.Filename)
+		}
+	} else {
+		// use diff to get changed files
+		changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, req.Build.Before, req.Build.After)
+		if err != nil {
+			logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
+			return nil, err
+		}
+		for _, file := range changes.Files {
+			changedFiles = append(changedFiles, *file.Filename)
+		}
 	}
 
 	// collect drone.yml files
 	files := map[string]string{}
 	order := []string{}
 	cache := map[string]bool{}
-	for _, file := range changes.Files {
-		dir := *file.Filename
-		if !strings.HasPrefix(dir, "/") {
-			dir = "/" + dir
+	for _, file := range changedFiles {
+		if !strings.HasPrefix(file, "/") {
+			file = "/" + file
 		}
+
 		done := false
+		dir := path.Join(file, "..")
 		for !done {
 			done = bool(dir == "/")
 			dir = path.Join(dir, "..")
