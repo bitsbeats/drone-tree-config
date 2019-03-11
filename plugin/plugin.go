@@ -70,6 +70,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		files, _, err := client.PullRequests.ListFiles(ctx, req.Repo.Namespace, req.Repo.Name, pullRequestId, &opts)
 		if err != nil {
 			logrus.Errorf("Unable to fetch diff for Pull request: %v", err)
+			return nil, err
 		}
 		for _, file := range files {
 			changedFiles = append(changedFiles, *file.Filename)
