@@ -6,17 +6,20 @@ The extension checks each changed file and look for a `.drone.yml` in the direct
 
 ## Limitations
 
-Currently supports only Github and a single `.drone.yml`. The first one that matches will be used.
+Currently supports only Github.
 
 ## Usage
 
 Environment variables:
 
-- `PLUGIN_DEBUG`: Set this to `yes` to enable debug messages.
+- `PLUGIN_CONCAT`: Concats all found configs to a multi-machine build. Defaults to `false`.
+- `PLUGIN_DEBUG`: Set this to `true` to enable debug messages.
 - `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 - `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
 - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
 - `GITHUB_SERVER`: Custom Github server for Github Enterprise
+
+If `PLUGIN_CONCAT` is not set, the first `.drone.yml` whill be used.
 
 Example docker-compose:
 
