@@ -32,6 +32,8 @@ type plugin struct {
 func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, error) {
 	// log
 	logrus.Infof("Handling %s %s: %s to %s", req.Repo.Namespace, req.Repo.Name, req.Build.Before, req.Build.After)
+	logrus.Debugf("Build: %+v", req.Build)
+	logrus.Debugf("Repo: %+v", req.Repo)
 
 	// github client
 	client := &github.Client{}
@@ -94,7 +96,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 			// check file on github
 			content, err := p.getGithubFile(ctx, req, client, file)
 			if err != nil {
-				logrus.Infof("Unable to load file: %s %v", file, err)
+				logrus.Debugf("Unable to load file: %s %v", file, err)
 			} else {
 				logrus.Infof("Found %s/%s %s", req.Repo.Namespace, req.Repo.Name, file)
 				order = append(order, file)
