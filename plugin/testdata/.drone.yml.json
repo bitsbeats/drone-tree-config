@@ -2,8 +2,8 @@
   "name": ".drone.yml",
   "path": ".drone.yml",
   "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-  "size": 8,
+  "size": 179,
   "type": "file",
-  "content": "Q09SUkVDVDI=",
+  "content": "a2luZDogcGlwZWxpbmUKbmFtZTogZGVmYXVsdAoKc3RlcHM6Ci0gbmFtZTogZnJvbnRlbmQKICBpbWFnZTogbm9kZQogIGNvbW1hbmRzOgogIC0gbnBtIGluc3RhbGwKICAtIG5wbSB0ZXN0CgotIG5hbWU6IGJhY2tlbmQKICBpbWFnZTogZ29sYW5nCiAgY29tbWFuZHM6CiAgLSBnbyBidWlsZAogIC0gZ28gdGVzdAo=",
   "encoding": "base64"
 }

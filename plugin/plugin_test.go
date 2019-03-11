@@ -42,7 +42,7 @@ func TestPlugin(t *testing.T) {
 		return
 	}
 
-	if want, got := "CORRECT\n\n", droneConfig.Data; want != got {
+	if want, got := "kind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n\n", droneConfig.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
 	}
 }
@@ -70,7 +70,7 @@ func TestConcat(t *testing.T) {
 		return
 	}
 
-	if want, got := "CORRECT\n\n\n---\nCORRECT2\n", droneConfig.Data; want != got {
+	if want, got := "kind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n\n\n---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n\n", droneConfig.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
 	}
 }
@@ -98,7 +98,7 @@ func TestPullRequest(t *testing.T) {
 		return
 	}
 
-	if want, got := "CORRECT2\n", droneConfig.Data; want != got {
+	if want, got := "kind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n\n", droneConfig.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
 	}
 }

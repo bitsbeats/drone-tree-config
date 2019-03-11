@@ -13,6 +13,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
+	"gopkg.in/yaml.v2"
 )
 
 func New(server, token string, concat bool) config.Plugin {
@@ -27,6 +28,11 @@ type plugin struct {
 	server string
 	token  string
 	concat bool
+}
+
+type droneConfig struct {
+	Name string `yaml:"name"`
+	Kind string `yaml:"kind"`
 }
 
 func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, error) {
@@ -94,7 +100,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		}
 
 		done := false
-		dir := path.Join(file, "..")
+		dir := file
 		for !done {
 			done = bool(dir == "/")
 			dir = path.Join(dir, "..")
@@ -111,24 +117,38 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 			// check file on github and append
 			fileContent, err := p.getGithubFile(ctx, req, client, file)
 			if err != nil {
-				logrus.Debugf("Unable to load file: %s %v", file, err)
-			} else {
-				logrus.Infof("Found %s/%s %s", req.Repo.Namespace, req.Repo.Name, file)
-				if configData != "" {
-					configData += "\n---\n"
-				}
-				configData += fileContent + "\n"
-				if !p.concat {
-					logrus.Info("Concat is disabled. Using first .drone.yaml.")
-					break
-				}
+				logrus.Debugf("Skipping: unable to load file: %s %v", file, err)
+				continue
+			}
+
+			// validate fileContent
+			dc := droneConfig{}
+			err = yaml.Unmarshal([]byte(fileContent), &dc)
+			if err != nil {
+				logrus.Debugf("Skipping: unable do parse yaml file: %s %v", file, err)
+				continue
+			}
+			if dc.Name == "" || dc.Kind == "" {
+				logrus.Debugf("Skipping: missing 'kind' or 'name' in %s.", file)
+				continue
+			}
+
+			// append
+			logrus.Infof("Found %s/%s %s", req.Repo.Namespace, req.Repo.Name, file)
+			if configData != "" {
+				configData += "\n---\n"
+			}
+			configData += fileContent + "\n"
+			if !p.concat {
+				logrus.Info("Concat is disabled. Using just first .drone.yaml.")
+				break
 			}
 		}
 	}
 
 	// no file found
 	if configData == "" {
-		return nil, errors.New("Did not found a .drone.yml")
+		return nil, errors.New("Did not find a .drone.yml")
 	}
 
 	return &drone.Config{Data: configData}, nil
