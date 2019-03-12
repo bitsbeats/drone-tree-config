@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"path"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -24,18 +25,25 @@ func New(server, token string, concat bool) config.Plugin {
 	}
 }
 
-type plugin struct {
-	server string
-	token  string
-	concat bool
-}
+type (
+	plugin struct {
+		server string
+		token  string
+		concat bool
+	}
 
-type droneConfig struct {
-	Name string `yaml:"name"`
-	Kind string `yaml:"kind"`
-}
+	droneConfig struct {
+		Name string `yaml:"name"`
+		Kind string `yaml:"kind"`
+	}
+)
+
+var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 
 func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, error) {
+	logrus.Infof("--- STARTED ---- %s ---", req.Build.Ref)
+	defer logrus.Infof("--- FINISHED --- %s ---", req.Build.Ref)
+
 	// log
 	logrus.Debugf("Build: %+v", req.Build)
 	logrus.Debugf("Repo: %+v", req.Repo)
@@ -89,6 +97,13 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		for _, file := range changes.Files {
 			changedFiles = append(changedFiles, *file.Filename)
 		}
+	}
+	if len(changedFiles) > 0 {
+		changedList := strings.Join(changedFiles, "\n  ")
+		logrus.Debugf("Changed files: \n  %s", changedList)
+	} else {
+		logrus.Warn("No changed files found!")
+		return nil, errors.New("No changed files found")
 	}
 
 	// collect drone.yml files
@@ -150,6 +165,10 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	if configData == "" {
 		return nil, errors.New("Did not find a .drone.yml")
 	}
+
+	// cleanup
+	configData = strings.ReplaceAll(configData, "...", "")
+	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
 
 	return &drone.Config{Data: configData}, nil
 }
