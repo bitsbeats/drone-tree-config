@@ -71,7 +71,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 
 	// get repo changes
 	changedFiles := []string{}
-	if req.Build.Fork != "" {
+	if strings.HasPrefix(req.Build.Ref, "refs/pull/") {
 		// use fork api to get changed files
 		pullRequestId, err := strconv.Atoi(strings.Split(req.Build.Ref, "/")[2])
 		if err != nil {
