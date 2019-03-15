@@ -18,6 +18,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// New creates a drone plugin
 func New(server, token string, concat bool) config.Plugin {
 	return &plugin{
 		server: server,
@@ -49,16 +50,13 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	logrus.Debugf("Build: %+v", req.Build)
 	logrus.Debugf("Repo: %+v", req.Repo)
 
-	// github client
-	client := &github.Client{}
-
 	// creates a github transport that authenticates
-	// http requests using the github access token.
 	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: p.token},
 	))
 
 	// connect with github
+	client := &github.Client{}
 	if p.server == "" {
 		client = github.NewClient(trans)
 	} else {
@@ -70,46 +68,10 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		}
 	}
 
-	// get repo changes
-	changedFiles := []string{}
-	if strings.HasPrefix(req.Build.Ref, "refs/pull/") {
-		// use fork api to get changed files
-		pullRequestId, err := strconv.Atoi(strings.Split(req.Build.Ref, "/")[2])
-		if err != nil {
-			logrus.Errorf("Unable to get pull request id: %v", err)
-			return nil, err
-		}
-		opts := github.ListOptions{}
-		files, _, err := client.PullRequests.ListFiles(ctx, req.Repo.Namespace, req.Repo.Name, pullRequestId, &opts)
-		if err != nil {
-			logrus.Errorf("Unable to fetch diff for Pull request: %v", err)
-			return nil, err
-		}
-		for _, file := range files {
-			changedFiles = append(changedFiles, *file.Filename)
-		}
-	} else {
-		// use diff to get changed files
-		before := req.Build.Before
-		// fix before if its zeroed (i.e. new tag).
-		if before == "0000000000000000000000000000000000000000" {
-			before = fmt.Sprintf("%s~1", req.Build.After)
-		}
-		changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, req.Build.After)
-		if err != nil {
-			logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
-			return nil, err
-		}
-		for _, file := range changes.Files {
-			changedFiles = append(changedFiles, *file.Filename)
-		}
-	}
-	if len(changedFiles) > 0 {
-		changedList := strings.Join(changedFiles, "\n  ")
-		logrus.Debugf("Changed files: \n  %s", changedList)
-	} else {
-		logrus.Warn("No changed files found!")
-		return nil, errors.New("No changed files found")
+	// get changed files
+	changedFiles, err := p.getGithubChanges(ctx, req, client)
+	if err != nil {
+		return nil, err
 	}
 
 	// collect drone.yml files
@@ -177,6 +139,52 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
 
 	return &drone.Config{Data: configData}, nil
+}
+
+// get repo changes
+func (p *plugin) getGithubChanges(ctx context.Context, req *config.Request, client *github.Client) ([]string, error) {
+	changedFiles := []string{}
+
+	if strings.HasPrefix(req.Build.Ref, "refs/pull/") {
+		// use pullrequests api to get changed files
+		pullRequestID, err := strconv.Atoi(strings.Split(req.Build.Ref, "/")[2])
+		if err != nil {
+			logrus.Errorf("Unable to get pull request id: %v", err)
+			return nil, err
+		}
+		opts := github.ListOptions{}
+		files, _, err := client.PullRequests.ListFiles(ctx, req.Repo.Namespace, req.Repo.Name, pullRequestID, &opts)
+		if err != nil {
+			logrus.Errorf("Unable to fetch diff for Pull request: %v", err)
+			return nil, err
+		}
+		for _, file := range files {
+			changedFiles = append(changedFiles, *file.Filename)
+		}
+	} else {
+		// use diff to get changed files
+		before := req.Build.Before
+		if before == "0000000000000000000000000000000000000000" {
+			before = fmt.Sprintf("%s~1", req.Build.After)
+		}
+		changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, req.Build.After)
+		if err != nil {
+			logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
+			return nil, err
+		}
+		for _, file := range changes.Files {
+			changedFiles = append(changedFiles, *file.Filename)
+		}
+	}
+
+	if len(changedFiles) > 0 {
+		changedList := strings.Join(changedFiles, "\n  ")
+		logrus.Debugf("Changed files: \n  %s", changedList)
+	} else {
+		logrus.Warn("No changed files found!")
+		return nil, errors.New("No changed files found")
+	}
+	return changedFiles, nil
 }
 
 // get the contents of a file on github, if the file is not found throw an error
