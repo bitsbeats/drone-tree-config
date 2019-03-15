@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"errors"
+	"fmt"
 	"path"
 	"regexp"
 	"strconv"
@@ -89,7 +90,12 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 		}
 	} else {
 		// use diff to get changed files
-		changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, req.Build.Before, req.Build.After)
+		before := req.Build.Before
+		// fix before if its zeroed (i.e. new tag).
+		if before == "0000000000000000000000000000000000000000" {
+			before = fmt.Sprintf("%s~1", req.Build.After)
+		}
+		changes, _, err := client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, req.Build.After)
 		if err != nil {
 			logrus.Errorf("Unable to fetch diff: '%v', server: '%s'", err, p.server)
 			return nil, err
