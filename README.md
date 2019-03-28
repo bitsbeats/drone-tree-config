@@ -2,7 +2,7 @@
 
 This is a Drone extention to support mono repositories with multiple `.drone.yml`.
 
-The extension checks each changed file and look for a `.drone.yml` in the directory of the file or any parent directory. Drone will use the first `.drone.yml` that matches.
+The extension checks each changed file and looks for a `.drone.yml` in the directory of the file or any parent directory. Drone will either use the first `.drone.yml` that matches or optionally run all of them in a multi-machine build.
 
 There is an official Docker image: https://hub.docker.com/r/bitsbeats/drone-tree-config
 
