@@ -56,7 +56,7 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 	))
 
 	// connect with github
-	client := &github.Client{}
+	var client *github.Client
 	if p.server == "" {
 		client = github.NewClient(trans)
 	} else {
