@@ -104,16 +104,16 @@ func (p *plugin) Find(ctx context.Context, req *config.Request) (*drone.Config, 
 				continue
 			}
 
-			// validate fileContent
+			// validate fileContent, exit early if an error was found
 			dc := droneConfig{}
 			err = yaml.Unmarshal([]byte(fileContent), &dc)
 			if err != nil {
-				logrus.Debugf("Skipping: unable do parse yaml file: %s %v", file, err)
-				continue
+				logrus.Errorf("Skipping: unable do parse yaml file: %s %v", file, err)
+				return nil, err
 			}
 			if dc.Name == "" || dc.Kind == "" {
-				logrus.Debugf("Skipping: missing 'kind' or 'name' in %s.", file)
-				continue
+				logrus.Errorf("Skipping: missing 'kind' or 'name' in %s.", file)
+				return nil, err
 			}
 
 			// append
