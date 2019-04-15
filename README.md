@@ -15,6 +15,7 @@ Currently supports only Github.
 Environment variables:
 
 - `PLUGIN_CONCAT`: Concats all found configs to a multi-machine build. Defaults to `false`.
+- `PLUGIN_FALLBACK`: Rebuild all .drone.yml if no changes where made. Defaults to `false`.
 - `PLUGIN_DEBUG`: Set this to `true` to enable debug messages.
 - `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 - `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
@@ -56,7 +57,9 @@ services:
   drone-tree-config:
     image: bitsbeats/drone-tree-config
     environment:
-      - DEBUG=yes
+      - PLUGIN_DEBUG=true
+      - PLUGIN_CONCAT=true
+      - PLUGIN_FALLBACK=true
       - PLUGIN_SECRET=<SECRET>
       - GITHUB_TOKEN=<GITHUB_TOKEN>
 ```

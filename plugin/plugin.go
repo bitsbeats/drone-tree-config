@@ -13,26 +13,28 @@ import (
 	"github.com/drone/drone-go/plugin/config"
 
 	"github.com/google/go-github/github"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
-	"github.com/google/uuid"
 )
 
 // New creates a drone plugin
-func New(server, token string, concat bool) config.Plugin {
+func New(server, token string, concat bool, fallback bool) config.Plugin {
 	return &plugin{
 		server: server,
 		token:  token,
 		concat: concat,
+		fallback: fallback,
 	}
 }
 
 type (
 	plugin struct {
-		server string
-		token  string
-		concat bool
+		server   string
+		token    string
+		concat   bool
+		fallback bool
 	}
 
 	droneConfig struct {
@@ -42,7 +44,7 @@ type (
 
 	request struct {
 		*config.Request
-		UUID uuid.UUID
+		UUID   uuid.UUID
 		Client *github.Client
 	}
 )
@@ -51,7 +53,7 @@ var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 
 func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone.Config, error) {
 	uuid := uuid.New()
-	logrus.Infof("%s %s/%s started", uuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name, )
+	logrus.Infof("%s %s/%s started", uuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name)
 	defer logrus.Infof("%s finished", uuid)
 
 	// connect to github
@@ -82,7 +84,11 @@ func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	configData := ""
 	if changedFiles != nil {
 		configData, err = p.getGithubConfigData(ctx, &req, changedFiles)
-	} else {
+	} else if req.Build.Trigger == "@cron" {
+		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
+		configData, err = p.getAllConfigData(ctx, &req, "/")
+	} else if p.fallback {
+		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
 		configData, err = p.getAllConfigData(ctx, &req, "/")
 	}
 	if err != nil {
@@ -144,7 +150,6 @@ func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 		changedList := strings.Join(changedFiles, "\n  ")
 		logrus.Debugf("%s changed files: \n  %s", req.UUID, changedList)
 	} else {
-		logrus.Warnf("%s no changed files, rebuilding all", req.UUID)
 		return nil, nil
 	}
 	return changedFiles, nil
@@ -187,7 +192,7 @@ func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file st
 	return fileContent, false, nil
 }
 
-func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error){
+func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
 	// collect drone.yml files
 	configData = ""
 	cache := map[string]bool{}
@@ -265,7 +270,7 @@ func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string)
 
 }
 
-func (p *plugin) droneConfigAppend(droneConfig string, appends... string) string {
+func (p *plugin) droneConfigAppend(droneConfig string, appends ...string) string {
 	for _, a := range appends {
 		if droneConfig != "" {
 			droneConfig += "\n---\n"

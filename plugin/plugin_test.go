@@ -35,7 +35,7 @@ func TestPlugin(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, false)
+	plugin := New(ts.URL, mockToken, false, true)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +63,7 @@ func TestConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true)
+	plugin := New(ts.URL, mockToken, true, true)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -91,7 +91,7 @@ func TestPullRequest(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true)
+	plugin := New(ts.URL, mockToken, true, true)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -103,14 +103,13 @@ func TestPullRequest(t *testing.T) {
 	}
 }
 
-
 func TestCron(t *testing.T) {
 	ts := httptest.NewServer(testMux())
 	defer ts.Close()
 
 	req := &config.Request{
 		Build: drone.Build{
-			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			After:   "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
 			Trigger: "@cron",
 		},
 		Repo: drone.Repo{
@@ -120,7 +119,7 @@ func TestCron(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, false)
+	plugin := New(ts.URL, mockToken, false, true)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -138,7 +137,7 @@ func TestCronConcat(t *testing.T) {
 
 	req := &config.Request{
 		Build: drone.Build{
-			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			After:   "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
 			Trigger: "@cron",
 		},
 		Repo: drone.Repo{
@@ -148,7 +147,7 @@ func TestCronConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true)
+	plugin := New(ts.URL, mockToken, true, true)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
