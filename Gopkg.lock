@@ -48,6 +48,14 @@
   version = "v1.0.0"
 
 [[projects]]
+  digest = "1:582b704bebaa06b48c29b0cec224a6058a09c86883aaddabde889cd1a5f73e1b"
+  name = "github.com/google/uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "0cd6bf5da1e1c83f8b45653022c74f71af0538a4"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:edbef42561faa44c19129b68d1e109fbc1647f63239250391eadc8d0e7c9f669"
   name = "github.com/kelseyhightower/envconfig"
   packages = ["."]
@@ -143,6 +151,7 @@
     "github.com/drone/drone-go/drone",
     "github.com/drone/drone-go/plugin/config",
     "github.com/google/go-github/github",
+    "github.com/google/uuid",
     "github.com/kelseyhightower/envconfig",
     "github.com/sirupsen/logrus",
     "golang.org/x/oauth2",

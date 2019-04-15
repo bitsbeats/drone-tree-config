@@ -1,0 +1,14 @@
+[
+  {
+    "type": "file",
+    "size": 625,
+    "name": ".drone.yml",
+    "path": ".drone.yml"
+  },
+  {
+    "type": "dir",
+    "size": 0,
+    "name": "afolder",
+    "path": "afolder"
+  }
+]

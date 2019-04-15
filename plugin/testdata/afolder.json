@@ -1,0 +1,8 @@
+[
+  {
+    "type": "file",
+    "size": 625,
+    "name": ".drone.yml",
+    "path": "afolder/.drone.yml"
+  }
+]
