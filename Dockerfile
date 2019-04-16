@@ -21,5 +21,5 @@ FROM alpine
 
 RUN true \
   && apk add -U --no-cache ca-certificates
-COPY --from=builder /go/src/github.com/bitsbeats/drone-tree-config/drone-tree-config /drone-tree-config
-CMD /drone-tree-config
+COPY --from=builder /go/src/github.com/bitsbeats/drone-tree-config/drone-tree-config /usr/local/bin
+CMD /usr/local/bin/drone-tree-config
