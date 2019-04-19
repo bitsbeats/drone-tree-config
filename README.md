@@ -1,6 +1,6 @@
 # Drone Tree Config
 
-This is a Drone extention to support mono repositories with multiple `.drone.yml`.
+This is a Drone extension to support mono repositories with multiple `.drone.yml`.
 
 The extension checks each changed file and looks for a `.drone.yml` in the directory of the file or any parent directory. Drone will either use the first `.drone.yml` that matches or optionally run all of them in a multi-machine build.
 
@@ -22,7 +22,7 @@ Environment variables:
 - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
 - `GITHUB_SERVER`: Custom Github server for Github Enterprise
 
-If `PLUGIN_CONCAT` is not set, the first `.drone.yml` whill be used.
+If `PLUGIN_CONCAT` is not set, the first `.drone.yml` will be used.
 
 Example docker-compose:
 
