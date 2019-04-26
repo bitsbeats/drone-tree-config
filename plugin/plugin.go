@@ -280,10 +280,16 @@ func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 
 func (p *plugin) droneConfigAppend(droneConfig string, appends ...string) string {
 	for _, a := range appends {
-		if droneConfig != "" {
-			droneConfig += "\n---\n"
+		a = strings.Trim(a, " \n")
+		if a != "" {
+			if !strings.HasPrefix(a, "---\n") {
+				a = "---\n" + a
+			}
+			droneConfig += a
+			if !strings.HasSuffix(droneConfig, "\n") {
+				droneConfig += "\n"
+			}
 		}
-		droneConfig += a + "\n"
 	}
 	return droneConfig
 }
