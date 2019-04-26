@@ -13,6 +13,7 @@ import (
 type (
 	spec struct {
 		Concat   bool   `envconfig:"PLUGIN_CONCAT"`
+		MaxDepth int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		Fallback bool   `envconfig:"PLUGIN_FALLBACK"`
 		Debug    bool   `envconfig:"PLUGIN_DEBUG"`
 		Address  string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
@@ -47,6 +48,7 @@ func main() {
 			spec.Token,
 			spec.Concat,
 			spec.Fallback,
+			spec.MaxDepth,
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

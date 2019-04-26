@@ -20,12 +20,13 @@ import (
 )
 
 // New creates a drone plugin
-func New(server, token string, concat bool, fallback bool) config.Plugin {
+func New(server, token string, concat bool, fallback bool, maxDepth int) config.Plugin {
 	return &plugin{
 		server: server,
 		token:  token,
 		concat: concat,
 		fallback: fallback,
+		maxDepth: maxDepth,
 	}
 }
 
@@ -35,6 +36,7 @@ type (
 		token    string
 		concat   bool
 		fallback bool
+		maxDepth int
 	}
 
 	droneConfig struct {
@@ -86,10 +88,10 @@ func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		configData, err = p.getGithubConfigData(ctx, &req, changedFiles)
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
-		configData, err = p.getAllConfigData(ctx, &req, "/")
+		configData, err = p.getAllConfigData(ctx, &req, "/", 0)
 	} else if p.fallback {
 		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
-		configData, err = p.getAllConfigData(ctx, &req, "/")
+		configData, err = p.getAllConfigData(ctx, &req, "/", 0)
 	}
 	if err != nil {
 		return nil, err
@@ -238,19 +240,25 @@ func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 }
 
 // search for all or fist drone.yml in repo
-func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string) (configData string, err error) {
+func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
 	ref := github.RepositoryContentGetOptions{Ref: req.Build.After}
 	_, ls, _, err := req.Client.Repositories.GetContents(ctx, req.Repo.Namespace, req.Repo.Name, dir, &ref)
 	if err != nil {
 		return "", err
 	}
 
+	if depth > p.maxDepth {
+		logrus.Infof("%s skipping scan of %s, max depth %d reached.", req.UUID, dir, depth)
+		return "", nil
+	}
+	depth += 1
+
 	// check recursivly for drone.yml
 	configData = ""
 	for _, f := range ls {
 		var fileContent string
 		if *f.Type == "dir" {
-			fileContent, _ = p.getAllConfigData(ctx, req, *f.Path)
+			fileContent, _ = p.getAllConfigData(ctx, req, *f.Path, depth)
 		} else if *f.Type == "file" && *f.Name == req.Repo.Config {
 			var critical bool
 			fileContent, critical, err = p.getGithubDroneConfig(ctx, req, *f.Path)
