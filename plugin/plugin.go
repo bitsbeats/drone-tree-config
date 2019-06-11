@@ -191,6 +191,7 @@ func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file st
 		return "", true, err
 	}
 
+	logrus.Infof("%s found %s/%s %s", req.UUID, req.Repo.Namespace, req.Repo.Name, file)
 	return fileContent, false, nil
 }
 
@@ -229,7 +230,6 @@ func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 
 			// append
 			configData = p.droneConfigAppend(configData, fileContent)
-			logrus.Infof("%s found %s/%s %s", req.UUID, req.Repo.Namespace, req.Repo.Name, file)
 			if !p.concat {
 				logrus.Infof("%s concat is disabled. Using just first .drone.yml.", req.UUID)
 				break
