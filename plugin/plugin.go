@@ -53,6 +53,7 @@ type (
 
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 
+// Find is called by dorne
 func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone.Config, error) {
 	uuid := uuid.New()
 	logrus.Infof("%s %s/%s started", uuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name)
@@ -109,7 +110,7 @@ func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	return &drone.Config{Data: configData}, nil
 }
 
-// get repo changes
+// getGithubChanges tries to get a list of changed files from github
 func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, error) {
 	var changedFiles []string
 
@@ -157,7 +158,7 @@ func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 	return changedFiles, nil
 }
 
-// get the contents of a file on github, if the file is not found throw an error
+// getGithubFile downloads a file from github
 func (p *plugin) getGithubFile(ctx context.Context, req *request, file string) (content string, err error) {
 	logrus.Debugf("%s checking %s/%s %s", req.UUID, req.Repo.Namespace, req.Repo.Name, file)
 	ref := github.RepositoryContentGetOptions{Ref: req.Build.After}
@@ -171,7 +172,7 @@ func (p *plugin) getGithubFile(ctx context.Context, req *request, file string) (
 	return data.GetContent()
 }
 
-// download and validate a drone.yml
+// getGithubDroneConfig downloads a drone config and validates it
 func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
 	fileContent, err := p.getGithubFile(ctx, req, file)
 	if err != nil {
@@ -195,6 +196,7 @@ func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file st
 	return fileContent, false, nil
 }
 
+// getGithubConfigData scans a repository based on the changed files
 func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
 	// collect drone.yml files
 	configData = ""
@@ -239,7 +241,7 @@ func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 	return configData, nil
 }
 
-// search for all or fist drone.yml in repo
+// getAllConfigData searches for all or fist 'drone.yml' in the repo
 func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
 	ref := github.RepositoryContentGetOptions{Ref: req.Build.After}
 	_, ls, _, err := req.Client.Repositories.GetContents(ctx, req.Repo.Namespace, req.Repo.Name, dir, &ref)
@@ -278,6 +280,8 @@ func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 
 }
 
+// droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
+// see https://docs.drone.io/user-guide/pipeline/multi-machine/
 func (p *plugin) droneConfigAppend(droneConfig string, appends ...string) string {
 	for _, a := range appends {
 		a = strings.Trim(a, " \n")
