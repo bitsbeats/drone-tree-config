@@ -9,29 +9,28 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/bitsbeats/drone-tree-config/plugin/scm_clients"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
 
-	"github.com/google/go-github/github"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/oauth2"
 	"gopkg.in/yaml.v2"
 )
 
 // New creates a drone plugin
 func New(server, token string, concat bool, fallback bool, maxDepth int) config.Plugin {
-	return &plugin{
-		server: server,
-		token:  token,
-		concat: concat,
+	return &Plugin{
+		server:   server,
+		token:    token,
+		concat:   concat,
 		fallback: fallback,
 		maxDepth: maxDepth,
 	}
 }
 
 type (
-	plugin struct {
+	Plugin struct {
 		server   string
 		token    string
 		concat   bool
@@ -47,35 +46,30 @@ type (
 	request struct {
 		*config.Request
 		UUID   uuid.UUID
-		Client *github.Client
+		Client scm_clients.ScmClient
 	}
 )
 
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 
-// Find is called by dorne
-func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone.Config, error) {
-	uuid := uuid.New()
-	logrus.Infof("%s %s/%s started", uuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name)
-	defer logrus.Infof("%s finished", uuid)
+func (p *Plugin) NewScmClient(uuid uuid.UUID, repo drone.Repo, ctx context.Context) scm_clients.ScmClient {
+	scmClient, err := scm_clients.GitHubClient(uuid, p.server, p.token, repo, ctx)
+	if err != nil {
+		logrus.Errorf("Unable to connect to SCM server.")
+	}
+	return scmClient
+}
+
+// Find is called by drone
+func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone.Config, error) {
+	someUuid := uuid.New()
+	logrus.Infof("%s %s/%s started", someUuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name)
+	defer logrus.Infof("%s finished", someUuid)
 
 	// connect to github
-	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: p.token},
-	))
-	var client *github.Client
-	if p.server == "" {
-		client = github.NewClient(trans)
-	} else {
-		var err error
-		client, err = github.NewEnterpriseClient(p.server, p.server, trans)
-		if err != nil {
-			logrus.Errorf("%s Unable to connect to Github: '%v'", uuid, err)
-			return nil, err
-		}
-	}
+	client := p.NewScmClient(someUuid, droneRequest.Repo, ctx)
 
-	req := request{droneRequest, uuid, client}
+	req := request{droneRequest, someUuid, client}
 
 	// get changed files
 	changedFiles, err := p.getGithubChanges(ctx, &req)
@@ -111,7 +105,7 @@ func (p *plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 }
 
 // getGithubChanges tries to get a list of changed files from github
-func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, error) {
+func (p *Plugin) getGithubChanges(ctx context.Context, req *request) ([]string, error) {
 	var changedFiles []string
 
 	if req.Build.Trigger == "@cron" {
@@ -124,8 +118,7 @@ func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 			logrus.Errorf("%s unable to get pull request id %v", req.UUID, err)
 			return nil, err
 		}
-		opts := github.ListOptions{}
-		files, _, err := req.Client.PullRequests.ListFiles(ctx, req.Repo.Namespace, req.Repo.Name, pullRequestID, &opts)
+		files, _, err := req.Client.ListFiles(ctx, pullRequestID)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff for Pull request %v", req.UUID, err)
 			return nil, err
@@ -139,7 +132,7 @@ func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 		if before == "0000000000000000000000000000000000000000" || before == "" {
 			before = fmt.Sprintf("%s~1", req.Build.After)
 		}
-		changes, _, err := req.Client.Repositories.CompareCommits(ctx, req.Repo.Namespace, req.Repo.Name, before, req.Build.After)
+		changes, _, err := req.Client.CompareCommits(ctx, before, req.Build.After)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff: '%v'", req.UUID, err)
 			return nil, err
@@ -159,10 +152,9 @@ func (p *plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 }
 
 // getGithubFile downloads a file from github
-func (p *plugin) getGithubFile(ctx context.Context, req *request, file string) (content string, err error) {
+func (p *Plugin) getGithubFile(ctx context.Context, req *request, file string) (content string, err error) {
 	logrus.Debugf("%s checking %s/%s %s", req.UUID, req.Repo.Namespace, req.Repo.Name, file)
-	ref := github.RepositoryContentGetOptions{Ref: req.Build.After}
-	data, _, _, err := req.Client.Repositories.GetContents(ctx, req.Repo.Namespace, req.Repo.Name, file, &ref)
+	data, _, _, err := req.Client.GetContents(ctx, file, req.Build.After)
 	if data == nil {
 		err = fmt.Errorf("failed to get %s: is not a file", file)
 	}
@@ -173,7 +165,7 @@ func (p *plugin) getGithubFile(ctx context.Context, req *request, file string) (
 }
 
 // getGithubDroneConfig downloads a drone config and validates it
-func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
+func (p *Plugin) getGithubDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
 	fileContent, err := p.getGithubFile(ctx, req, file)
 	if err != nil {
 		logrus.Debugf("%s skipping: unable to load file: %s %v", req.UUID, file, err)
@@ -197,7 +189,7 @@ func (p *plugin) getGithubDroneConfig(ctx context.Context, req *request, file st
 }
 
 // getGithubConfigData scans a repository based on the changed files
-func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
+func (p *Plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
 	// collect drone.yml files
 	configData = ""
 	cache := map[string]bool{}
@@ -242,9 +234,8 @@ func (p *plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 }
 
 // getAllConfigData searches for all or fist 'drone.yml' in the repo
-func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
-	ref := github.RepositoryContentGetOptions{Ref: req.Build.After}
-	_, ls, _, err := req.Client.Repositories.GetContents(ctx, req.Repo.Namespace, req.Repo.Name, dir, &ref)
+func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
+	_, ls, _, err := req.Client.GetContents(ctx, dir, req.Build.After)
 	if err != nil {
 		return "", err
 	}
@@ -282,7 +273,7 @@ func (p *plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 
 // droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
 // see https://docs.drone.io/user-guide/pipeline/multi-machine/
-func (p *plugin) droneConfigAppend(droneConfig string, appends ...string) string {
+func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string {
 	for _, a := range appends {
 		a = strings.Trim(a, " \n")
 		if a != "" {
