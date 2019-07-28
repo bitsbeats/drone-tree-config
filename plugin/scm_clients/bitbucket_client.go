@@ -88,7 +88,9 @@ func (s BitBucketClient) ChangedFilesInPullRequest(ctx context.Context, pullRequ
 		return nil, err
 	}
 	for _, fileDiff := range diffStat.Values {
-		changedFiles = append(changedFiles, fileDiff.New.Path)
+		if fileDiff.Status != "removed" {
+			changedFiles = append(changedFiles, fileDiff.New.Path)
+		}
 	}
 	return changedFiles, nil
 }
@@ -101,8 +103,13 @@ func (s BitBucketClient) ChangedFilesInDiff(ctx context.Context, base string, he
 	if err != nil {
 		return nil, err
 	}
+	if diffStat.Values == nil {
+		return nil, err
+	}
 	for _, fileDiff := range diffStat.Values {
-		changedFiles = append(changedFiles, fileDiff.New.Path)
+		if fileDiff.Status != "removed" {
+			changedFiles = append(changedFiles, fileDiff.New.Path)
+		}
 	}
 	return changedFiles, nil
 }
