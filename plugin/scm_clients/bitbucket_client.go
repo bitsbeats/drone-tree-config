@@ -110,7 +110,10 @@ func (s BitBucketClient) ChangedFilesInDiff(ctx context.Context, base string, he
 		return nil, err
 	}
 	for _, fileDiff := range diffStat.Values {
-		if fileDiff.Status != "removed" {
+		if fileDiff.Status == "removed" || fileDiff.Status == "renamed" {
+			changedFiles = append(changedFiles, fileDiff.Old.Path)
+		}
+		if fileDiff.Status == "modified" || fileDiff.Status == "added" || fileDiff.Status == "renamed" {
 			changedFiles = append(changedFiles, fileDiff.New.Path)
 		}
 	}
