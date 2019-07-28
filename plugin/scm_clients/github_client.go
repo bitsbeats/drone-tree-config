@@ -71,7 +71,7 @@ func (s GithubClient) GetFileContents(ctx context.Context, path string, commitRe
 	return data.GetContent()
 }
 
-func (s GithubClient) GetContents(ctx context.Context, path string, commitRef string) (
+func (s GithubClient) GetFileListing(ctx context.Context, path string, commitRef string) (
 	fileListing []FileListingEntry, err error) {
 	_, ls, _, err := s.getContents(ctx, path, commitRef)
 	var result []FileListingEntry
@@ -82,9 +82,9 @@ func (s GithubClient) GetContents(ctx context.Context, path string, commitRef st
 
 	for _, f := range ls {
 		fileListingEntry := FileListingEntry{
-			Path: f.Path,
-			Name: f.Name,
-			Type: f.Type,
+			Path: *f.Path,
+			Name: *f.Name,
+			Type: *f.Type,
 		}
 		result = append(result, fileListingEntry)
 	}

@@ -5,9 +5,9 @@ import (
 )
 
 type FileListingEntry struct {
-	Type *string
-	Name *string
-	Path *string
+	Type string
+	Name string
+	Path string
 }
 
 type ScmClient interface {
@@ -15,6 +15,6 @@ type ScmClient interface {
 	ChangedFilesInDiff(ctx context.Context, base string, head string) ([]string, error)
 	GetFileContents(ctx context.Context, path string, afterRef string) (
 		fileContent string, err error)
-	GetContents(ctx context.Context, path string, afterRef string) (
+	GetFileListing(ctx context.Context, path string, afterRef string) (
 		fileListing []FileListingEntry, err error)
 }

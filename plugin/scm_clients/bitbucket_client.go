@@ -110,7 +110,7 @@ func (s BitBucketClient) GetFileContents(ctx context.Context, path string, commi
 	return bodyString, nil
 }
 
-func (s BitBucketClient) GetContents(ctx context.Context, path string, commitRef string) (
+func (s BitBucketClient) GetFileListing(ctx context.Context, path string, commitRef string) (
 	fileListing []FileListingEntry, err error) {
 	opts := make(map[string]interface{})
 	opts["format"] = "meta"
@@ -134,9 +134,9 @@ func (s BitBucketClient) GetContents(ctx context.Context, path string, commitRef
 		}
 		fileName := filepath.Base(f.Path)
 		fileListingEntry := FileListingEntry{
-			Path: &f.Path,
-			Name: &fileName,
-			Type: &fileType,
+			Path: f.Path,
+			Name: fileName,
+			Type: fileType,
 		}
 		result = append(result, fileListingEntry)
 	}

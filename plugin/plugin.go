@@ -235,7 +235,7 @@ func (p *Plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 
 // getAllConfigData searches for all or fist 'drone.yml' in the repo
 func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
-	ls, err := req.Client.GetContents(ctx, dir, req.Build.After)
+	ls, err := req.Client.GetFileListing(ctx, dir, req.Build.After)
 	if err != nil {
 		return "", err
 	}
@@ -250,11 +250,11 @@ func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 	configData = ""
 	for _, f := range ls {
 		var fileContent string
-		if *f.Type == "dir" {
-			fileContent, _ = p.getAllConfigData(ctx, req, *f.Path, depth)
-		} else if *f.Type == "file" && *f.Name == req.Repo.Config {
+		if f.Type == "dir" {
+			fileContent, _ = p.getAllConfigData(ctx, req, f.Path, depth)
+		} else if f.Type == "file" && f.Name == req.Repo.Config {
 			var critical bool
-			fileContent, critical, err = p.getGithubDroneConfig(ctx, req, *f.Path)
+			fileContent, critical, err = p.getGithubDroneConfig(ctx, req, f.Path)
 			if critical {
 				return "", err
 			}
