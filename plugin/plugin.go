@@ -118,13 +118,9 @@ func (p *Plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 			logrus.Errorf("%s unable to get pull request id %v", req.UUID, err)
 			return nil, err
 		}
-		files, _, err := req.Client.ListFiles(ctx, pullRequestID)
+		changedFiles, err = req.Client.ChangedFilesInPullRequest(ctx, pullRequestID)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff for Pull request %v", req.UUID, err)
-			return nil, err
-		}
-		for _, file := range files {
-			changedFiles = append(changedFiles, *file.Filename)
 		}
 	} else {
 		// use diff to get changed files
@@ -132,13 +128,11 @@ func (p *Plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 		if before == "0000000000000000000000000000000000000000" || before == "" {
 			before = fmt.Sprintf("%s~1", req.Build.After)
 		}
-		changes, _, err := req.Client.CompareCommits(ctx, before, req.Build.After)
+		var err error
+		changedFiles, err = req.Client.ChangedFilesInDiff(ctx, before, req.Build.After)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff: '%v'", req.UUID, err)
 			return nil, err
-		}
-		for _, file := range changes.Files {
-			changedFiles = append(changedFiles, *file.Filename)
 		}
 	}
 
@@ -154,14 +148,7 @@ func (p *Plugin) getGithubChanges(ctx context.Context, req *request) ([]string, 
 // getGithubFile downloads a file from github
 func (p *Plugin) getGithubFile(ctx context.Context, req *request, file string) (content string, err error) {
 	logrus.Debugf("%s checking %s/%s %s", req.UUID, req.Repo.Namespace, req.Repo.Name, file)
-	data, _, _, err := req.Client.GetContents(ctx, file, req.Build.After)
-	if data == nil {
-		err = fmt.Errorf("failed to get %s: is not a file", file)
-	}
-	if err != nil {
-		return "", err
-	}
-	return data.GetContent()
+	return req.Client.GetFileContents(ctx, file, req.Build.After)
 }
 
 // getGithubDroneConfig downloads a drone config and validates it
@@ -235,7 +222,7 @@ func (p *Plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 
 // getAllConfigData searches for all or fist 'drone.yml' in the repo
 func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
-	_, ls, _, err := req.Client.GetContents(ctx, dir, req.Build.After)
+	ls, err := req.Client.GetContents(ctx, dir, req.Build.After)
 	if err != nil {
 		return "", err
 	}
@@ -268,7 +255,6 @@ func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 	}
 
 	return configData, nil
-
 }
 
 // droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline

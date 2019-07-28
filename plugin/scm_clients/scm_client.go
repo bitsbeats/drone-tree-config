@@ -2,14 +2,19 @@ package scm_clients
 
 import (
 	"context"
-	"github.com/google/go-github/github"
 )
 
+type FileListingEntry struct {
+	Type *string
+	Name *string
+	Path *string
+}
+
 type ScmClient interface {
-	ListFiles(ctx context.Context, number int) (
-		[]*github.CommitFile, *github.Response, error)
-	CompareCommits(ctx context.Context, base, head string) (
-		*github.CommitsComparison, *github.Response, error)
+	ChangedFilesInPullRequest(ctx context.Context, pullRequestID int) ([]string, error)
+	ChangedFilesInDiff(ctx context.Context, base string, head string) ([]string, error)
+	GetFileContents(ctx context.Context, path string, afterRef string) (
+		fileContent string, err error)
 	GetContents(ctx context.Context, path string, afterRef string) (
-		fileContent *github.RepositoryContent, directoryContent []*github.RepositoryContent, resp *github.Response, err error)
+		fileListing []FileListingEntry, err error)
 }
