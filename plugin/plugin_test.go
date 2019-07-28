@@ -35,7 +35,7 @@ func TestPlugin(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, "", "", false, true, 2)
+	plugin := New("", ts.URL, mockToken, "", "", false, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +63,7 @@ func TestConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -91,7 +91,7 @@ func TestPullRequest(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -119,7 +119,7 @@ func TestCron(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, "", "", false, true, 2)
+	plugin := New("", ts.URL, mockToken, "", "", false, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -147,7 +147,7 @@ func TestCronConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -155,7 +155,7 @@ func TestCronConcat(t *testing.T) {
 	}
 
 	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n---\nkind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n", droneConfig.Data; want != got {
-		t.Errorf("Want %q got %q", want, got)
+		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
 	}
 }
 
@@ -194,6 +194,11 @@ func testMux() *http.ServeMux {
 	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("testdata/github/afolder.json")
+			_, _ = io.Copy(w, f)
+		})
+	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder/abfolder",
+		func(w http.ResponseWriter, r *http.Request) {
+			f, _ := os.Open("testdata/github/afolder_abfolder.json")
 			_, _ = io.Copy(w, f)
 		})
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

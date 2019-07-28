@@ -2,7 +2,6 @@ package scm_clients
 
 import (
 	"github.com/drone/drone-go/drone"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -61,48 +60,37 @@ func TestBitBucket_GetFileListing(t *testing.T) {
 }
 
 func createBitBucketClient(server string) (ScmClient, error) {
-	someUuid := uuid.New()
 	repo := drone.Repo{
 		Namespace: "foosinn",
 		Name:      "dronetest",
 		Slug:      "foosinn/dronetest",
 	}
-	return NewBitBucketClient(someUuid, server, mockClientId, mockSecret, repo)
+	return NewBitBucketClient(server, server, mockClientId, mockSecret, repo)
 }
 
 func testMuxBitBucket() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/",
+	mux.HandleFunc("/site/oauth2/access_token",
 		func(w http.ResponseWriter, r *http.Request) {
-			f, _ := os.Open("../testdata/bitbucket/root.json")
+			f, _ := os.Open("../testdata/bitbucket/token.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+	mux.HandleFunc("/repositories/foosinn/dronetest/diffstat/2897b31ec3a1b59279a08a8ad54dc360686327f7..8ecad91991d5da985a2a8dd97cc19029dc1c2899",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/compare.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/a/b/.drone.yml",
-		func(w http.ResponseWriter, r *http.Request) {
-			f, _ := os.Open("../testdata/bitbucket/a_b_.drone.yml.json")
-			_, _ = io.Copy(w, f)
-		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/.drone.yml",
-		func(w http.ResponseWriter, r *http.Request) {
-			f, _ := os.Open("../testdata/bitbucket/.drone.yml.json")
-			_, _ = io.Copy(w, f)
-		})
-	mux.HandleFunc("/repos/foosinn/dronetest/pulls/3/files",
+	mux.HandleFunc("/repositories/foosinn/dronetest/pullrequests/3/diffstat",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/pull_3_files.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder/.drone.yml",
+	mux.HandleFunc("/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
-			f, _ := os.Open("../testdata/bitbucket/afolder_.drone.yml.json")
+			f, _ := os.Open("../testdata/bitbucket/afolder_.drone.yml")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder",
+	mux.HandleFunc("/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/afolder.json")
 			_, _ = io.Copy(w, f)

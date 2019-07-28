@@ -3,6 +3,7 @@ package scm_clients
 import (
 	"context"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -10,6 +11,7 @@ var noContext = context.Background()
 
 func BaseTest_GetFileContents(t *testing.T, client ScmClient) {
 	actualContent, err := client.GetFileContents(noContext, "afolder/.drone.yml", "8ecad91991d5da985a2a8dd97cc19029dc1c2899")
+	actualContent = strings.Replace(actualContent, "\r", "", -1)
 	if err != nil {
 		t.Error(err)
 		return

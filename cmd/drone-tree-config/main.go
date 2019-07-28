@@ -19,7 +19,8 @@ type (
 		Address         string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret          string `envconfig:"PLUGIN_SECRET"`
 		GitHubToken     string `envconfig:"GITHUB_TOKEN"`
-		Server          string `envconfig:"GITHUB_SERVER"`
+		AuthServer      string `envconfig:"AUTH_SERVER"`
+		Server          string `envconfig:"SERVER"`
 		BitBucketClient string `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret string `envconfig:"BITBUCKET_SECRET"`
 	}
@@ -43,9 +44,13 @@ func main() {
 	if spec.Address == "" {
 		spec.Address = ":3000"
 	}
+	if spec.AuthServer == "" {
+		spec.AuthServer = spec.Server
+	}
 
 	handler := config.Handler(
 		plugin.New(
+			spec.AuthServer,
 			spec.Server,
 			spec.GitHubToken,
 			spec.BitBucketClient,

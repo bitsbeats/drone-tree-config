@@ -1,14 +1,55 @@
-[
-  {
-    "type": "file",
-    "size": 625,
-    "name": ".drone.yml",
-    "path": "afolder/.drone.yml"
-  },
-  {
-    "type": "dir",
-    "size": 0,
-    "name": "abfolder",
-    "path": "afolder/abfolder"
-  }
-]
+{
+  "pagelen": 500,
+  "values": [
+    {
+      "path": "afolder/.drone.yml",
+      "type": "commit_file",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/afolder/.drone.yml"
+        },
+        "meta": {
+          "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/afolder/.drone.yml?format=meta"
+        }
+      },
+      "commit": {
+        "type": "commit",
+        "hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/commit/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          },
+          "html": {
+            "href": "https://bitbucket.org/foosinn/dronetest/commits/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          }
+        }
+      }
+    },
+    {
+      "path": "afolder/abfolder",
+      "type": "commit_directory",
+      "links": {
+        "self": {
+          "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/afolder/abfolder/"
+        },
+        "meta": {
+          "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/afolder/abfolder/?format=meta"
+        }
+      },
+      "commit": {
+        "type": "commit",
+        "hash": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/commit/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          },
+          "html": {
+            "href": "https://bitbucket.org/foosinn/dronetest/commits/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391"
+          }
+        }
+      }
+    }
+  ],
+  "page": 1,
+  "size": 2
+}

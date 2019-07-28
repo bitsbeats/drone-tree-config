@@ -1,255 +1,31 @@
 {
-  "url": "https://api.github.com/repos/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-  "html_url": "https://github.com/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-  "permalink_url": "https://github.com/foosinn/dronetest/compare/foosinn:2897b31...foosinn:8ecad91",
-  "diff_url": "https://github.com/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899.diff",
-  "patch_url": "https://github.com/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899.patch",
-  "base_commit": {
-    "sha": "2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "node_id": "MDY6Q29tbWl0MTc0MzgyMTkwOjI4OTdiMzFlYzNhMWI1OTI3OWEwOGE4YWQ1NGRjMzYwNjg2MzI3Zjc=",
-    "commit": {
-      "author": {
-        "name": "Stefan Schwarz",
-        "email": "ssz@bitsbeats.com",
-        "date": "2019-03-07T16:33:22Z"
-      },
-      "committer": {
-        "name": "Stefan Schwarz",
-        "email": "ssz@bitsbeats.com",
-        "date": "2019-03-07T16:33:22Z"
-      },
-      "message": "prepare test",
-      "tree": {
-        "sha": "2dbe5c9980e18aeb1a29a0597a3d32c7a6b5eaca",
-        "url": "https://api.github.com/repos/foosinn/dronetest/git/trees/2dbe5c9980e18aeb1a29a0597a3d32c7a6b5eaca"
-      },
-      "url": "https://api.github.com/repos/foosinn/dronetest/git/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-      "comment_count": 0,
-      "verification": {
-        "verified": false,
-        "reason": "unsigned",
-        "signature": null,
-        "payload": null
-      }
-    },
-    "url": "https://api.github.com/repos/foosinn/dronetest/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "html_url": "https://github.com/foosinn/dronetest/commit/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "comments_url": "https://api.github.com/repos/foosinn/dronetest/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7/comments",
-    "author": {
-      "login": "foosinn",
-      "id": 8914163,
-      "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/foosinn",
-      "html_url": "https://github.com/foosinn",
-      "followers_url": "https://api.github.com/users/foosinn/followers",
-      "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-      "organizations_url": "https://api.github.com/users/foosinn/orgs",
-      "repos_url": "https://api.github.com/users/foosinn/repos",
-      "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/foosinn/received_events",
-      "type": "User",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "foosinn",
-      "id": 8914163,
-      "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/foosinn",
-      "html_url": "https://github.com/foosinn",
-      "followers_url": "https://api.github.com/users/foosinn/followers",
-      "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-      "organizations_url": "https://api.github.com/users/foosinn/orgs",
-      "repos_url": "https://api.github.com/users/foosinn/repos",
-      "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/foosinn/received_events",
-      "type": "User",
-      "site_admin": false
-    },
-    "parents": [
-
-    ]
-  },
-  "merge_base_commit": {
-    "sha": "2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "node_id": "MDY6Q29tbWl0MTc0MzgyMTkwOjI4OTdiMzFlYzNhMWI1OTI3OWEwOGE4YWQ1NGRjMzYwNjg2MzI3Zjc=",
-    "commit": {
-      "author": {
-        "name": "Stefan Schwarz",
-        "email": "ssz@bitsbeats.com",
-        "date": "2019-03-07T16:33:22Z"
-      },
-      "committer": {
-        "name": "Stefan Schwarz",
-        "email": "ssz@bitsbeats.com",
-        "date": "2019-03-07T16:33:22Z"
-      },
-      "message": "prepare test",
-      "tree": {
-        "sha": "2dbe5c9980e18aeb1a29a0597a3d32c7a6b5eaca",
-        "url": "https://api.github.com/repos/foosinn/dronetest/git/trees/2dbe5c9980e18aeb1a29a0597a3d32c7a6b5eaca"
-      },
-      "url": "https://api.github.com/repos/foosinn/dronetest/git/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-      "comment_count": 0,
-      "verification": {
-        "verified": false,
-        "reason": "unsigned",
-        "signature": null,
-        "payload": null
-      }
-    },
-    "url": "https://api.github.com/repos/foosinn/dronetest/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "html_url": "https://github.com/foosinn/dronetest/commit/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-    "comments_url": "https://api.github.com/repos/foosinn/dronetest/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7/comments",
-    "author": {
-      "login": "foosinn",
-      "id": 8914163,
-      "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/foosinn",
-      "html_url": "https://github.com/foosinn",
-      "followers_url": "https://api.github.com/users/foosinn/followers",
-      "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-      "organizations_url": "https://api.github.com/users/foosinn/orgs",
-      "repos_url": "https://api.github.com/users/foosinn/repos",
-      "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/foosinn/received_events",
-      "type": "User",
-      "site_admin": false
-    },
-    "committer": {
-      "login": "foosinn",
-      "id": 8914163,
-      "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-      "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-      "gravatar_id": "",
-      "url": "https://api.github.com/users/foosinn",
-      "html_url": "https://github.com/foosinn",
-      "followers_url": "https://api.github.com/users/foosinn/followers",
-      "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-      "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-      "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-      "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-      "organizations_url": "https://api.github.com/users/foosinn/orgs",
-      "repos_url": "https://api.github.com/users/foosinn/repos",
-      "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-      "received_events_url": "https://api.github.com/users/foosinn/received_events",
-      "type": "User",
-      "site_admin": false
-    },
-    "parents": [
-
-    ]
-  },
-  "status": "ahead",
-  "ahead_by": 1,
-  "behind_by": 0,
-  "total_commits": 1,
-  "commits": [
+  "pagelen": 500,
+  "values": [
     {
-      "sha": "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-      "node_id": "MDY6Q29tbWl0MTc0MzgyMTkwOjhlY2FkOTE5OTFkNWRhOTg1YTJhOGRkOTdjYzE5MDI5ZGMxYzI4OTk=",
-      "commit": {
-        "author": {
-          "name": "Stefan Schwarz",
-          "email": "ssz@bitsbeats.com",
-          "date": "2019-03-07T16:33:28Z"
-        },
-        "committer": {
-          "name": "Stefan Schwarz",
-          "email": "ssz@bitsbeats.com",
-          "date": "2019-03-07T16:33:28Z"
-        },
-        "message": "change",
-        "tree": {
-          "sha": "2c60646fabd885c77419ecd1b29f45169adfce16",
-          "url": "https://api.github.com/repos/foosinn/dronetest/git/trees/2c60646fabd885c77419ecd1b29f45169adfce16"
-        },
-        "url": "https://api.github.com/repos/foosinn/dronetest/git/commits/8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-        "comment_count": 0,
-        "verification": {
-          "verified": false,
-          "reason": "unsigned",
-          "signature": null,
-          "payload": null
+      "status": "modified",
+      "old": {
+        "path": "a/b/c/d/file",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/2897b31ec3a1b59279a08a8ad54dc360686327f7/a/b/c/d/file"
+          }
         }
       },
-      "url": "https://api.github.com/repos/foosinn/dronetest/commits/8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-      "html_url": "https://github.com/foosinn/dronetest/commit/8ecad91991d5da985a2a8dd97cc19029dc1c2899",
-      "comments_url": "https://api.github.com/repos/foosinn/dronetest/commits/8ecad91991d5da985a2a8dd97cc19029dc1c2899/comments",
-      "author": {
-        "login": "foosinn",
-        "id": 8914163,
-        "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-        "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-        "gravatar_id": "",
-        "url": "https://api.github.com/users/foosinn",
-        "html_url": "https://github.com/foosinn",
-        "followers_url": "https://api.github.com/users/foosinn/followers",
-        "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-        "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-        "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-        "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-        "organizations_url": "https://api.github.com/users/foosinn/orgs",
-        "repos_url": "https://api.github.com/users/foosinn/repos",
-        "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-        "received_events_url": "https://api.github.com/users/foosinn/received_events",
-        "type": "User",
-        "site_admin": false
-      },
-      "committer": {
-        "login": "foosinn",
-        "id": 8914163,
-        "node_id": "MDQ6VXNlcjg5MTQxNjM=",
-        "avatar_url": "https://avatars0.githubusercontent.com/u/8914163?v=4",
-        "gravatar_id": "",
-        "url": "https://api.github.com/users/foosinn",
-        "html_url": "https://github.com/foosinn",
-        "followers_url": "https://api.github.com/users/foosinn/followers",
-        "following_url": "https://api.github.com/users/foosinn/following{/other_user}",
-        "gists_url": "https://api.github.com/users/foosinn/gists{/gist_id}",
-        "starred_url": "https://api.github.com/users/foosinn/starred{/owner}{/repo}",
-        "subscriptions_url": "https://api.github.com/users/foosinn/subscriptions",
-        "organizations_url": "https://api.github.com/users/foosinn/orgs",
-        "repos_url": "https://api.github.com/users/foosinn/repos",
-        "events_url": "https://api.github.com/users/foosinn/events{/privacy}",
-        "received_events_url": "https://api.github.com/users/foosinn/received_events",
-        "type": "User",
-        "site_admin": false
-      },
-      "parents": [
-        {
-          "sha": "2897b31ec3a1b59279a08a8ad54dc360686327f7",
-          "url": "https://api.github.com/repos/foosinn/dronetest/commits/2897b31ec3a1b59279a08a8ad54dc360686327f7",
-          "html_url": "https://github.com/foosinn/dronetest/commit/2897b31ec3a1b59279a08a8ad54dc360686327f7"
+      "lines_removed": 0,
+      "lines_added": 2,
+      "new": {
+        "path": "a/b/c/d/file",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/a/b/c/d/file"
+          }
         }
-      ]
+      },
+      "type": "diffstat"
     }
   ],
-  "files": [
-    {
-      "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-      "filename": "a/b/c/d/file",
-      "status": "added",
-      "additions": 0,
-      "deletions": 0,
-      "changes": 0,
-      "blob_url": "https://github.com/foosinn/dronetest/blob/8ecad91991d5da985a2a8dd97cc19029dc1c2899/a/b/c/d/file",
-      "raw_url": "https://github.com/foosinn/dronetest/raw/8ecad91991d5da985a2a8dd97cc19029dc1c2899/a/b/c/d/file",
-      "contents_url": "https://api.github.com/repos/foosinn/dronetest/contents/a/b/c/d/file?ref=8ecad91991d5da985a2a8dd97cc19029dc1c2899"
-    }
-  ]
+  "page": 1,
+  "size": 1
 }

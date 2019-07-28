@@ -19,9 +19,10 @@ import (
 )
 
 // New creates a drone plugin
-func New(server, gitHubToken string, bitBucketClient string, bitBucketSecret string,
+func New(authServer string, server string, gitHubToken string, bitBucketClient string, bitBucketSecret string,
 	concat bool, fallback bool, maxDepth int) config.Plugin {
 	return &Plugin{
+		authServer:      authServer,
 		server:          server,
 		gitHubToken:     gitHubToken,
 		bitBucketClient: bitBucketClient,
@@ -34,6 +35,7 @@ func New(server, gitHubToken string, bitBucketClient string, bitBucketSecret str
 
 type (
 	Plugin struct {
+		authServer      string
 		server          string
 		gitHubToken     string
 		bitBucketClient string
@@ -63,7 +65,7 @@ func (p *Plugin) NewScmClient(uuid uuid.UUID, repo drone.Repo, ctx context.Conte
 	if p.gitHubToken != "" {
 		scmClient, err = scm_clients.NewGitHubClient(uuid, p.server, p.gitHubToken, repo, ctx)
 	} else if p.bitBucketClient != "" {
-		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
+		scmClient, err = scm_clients.NewBitBucketClient(p.authServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
 	} else {
 		err = fmt.Errorf("no SCM credentials specified")
 	}
@@ -79,7 +81,7 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	logrus.Infof("%s %s/%s started", someUuid, droneRequest.Repo.Namespace, droneRequest.Repo.Name)
 	defer logrus.Infof("%s finished", someUuid)
 
-	// connect to github
+	// connect to scm
 	client := p.NewScmClient(someUuid, droneRequest.Repo, ctx)
 
 	req := request{droneRequest, someUuid, client}
@@ -93,7 +95,7 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	// get drone.yml for changed files or all of them if no changes/cron
 	configData := ""
 	if changedFiles != nil {
-		configData, err = p.getGithubConfigData(ctx, &req, changedFiles)
+		configData, err = p.getConfigDataForChanges(ctx, &req, changedFiles)
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
 		configData, err = p.getAllConfigData(ctx, &req, "/", 0)
@@ -188,8 +190,8 @@ func (p *Plugin) getGithubDroneConfig(ctx context.Context, req *request, file st
 	return fileContent, false, nil
 }
 
-// getGithubConfigData scans a repository based on the changed files
-func (p *Plugin) getGithubConfigData(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
+// getConfigDataForChanges scans a repository based on the changed files
+func (p *Plugin) getConfigDataForChanges(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
 	// collect drone.yml files
 	configData = ""
 	cache := map[string]bool{}
@@ -233,7 +235,7 @@ func (p *Plugin) getGithubConfigData(ctx context.Context, req *request, changedF
 	return configData, nil
 }
 
-// getAllConfigData searches for all or fist 'drone.yml' in the repo
+// getAllConfigData searches for all or first 'drone.yml' in the repo
 func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
 	ls, err := req.Client.GetFileListing(ctx, dir, req.Build.After)
 	if err != nil {
@@ -246,7 +248,7 @@ func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 	}
 	depth += 1
 
-	// check recursivly for drone.yml
+	// check recursively for drone.yml
 	configData = ""
 	for _, f := range ls {
 		var fileContent string
