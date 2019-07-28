@@ -15,7 +15,7 @@ type GithubClient struct {
 	repo     drone.Repo
 }
 
-func GitHubClient(uuid uuid.UUID, server string, token string, repo drone.Repo, ctx context.Context) (ScmClient, error) {
+func NewGitHubClient(uuid uuid.UUID, server string, token string, repo drone.Repo, ctx context.Context) (ScmClient, error) {
 	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	))
@@ -60,8 +60,8 @@ func (s GithubClient) ChangedFilesInDiff(ctx context.Context, base string, head 
 	return changedFiles, nil
 }
 
-func (s GithubClient) GetFileContents(ctx context.Context, path string, afterRef string) (content string, err error) {
-	data, _, _, err := s.getContents(ctx, path, afterRef)
+func (s GithubClient) GetFileContents(ctx context.Context, path string, commitRef string) (content string, err error) {
+	data, _, _, err := s.getContents(ctx, path, commitRef)
 	if data == nil {
 		err = fmt.Errorf("failed to get %s: is not a file", path)
 	}
@@ -71,9 +71,9 @@ func (s GithubClient) GetFileContents(ctx context.Context, path string, afterRef
 	return data.GetContent()
 }
 
-func (s GithubClient) GetContents(ctx context.Context, path string, afterRef string) (
+func (s GithubClient) GetContents(ctx context.Context, path string, commitRef string) (
 	fileListing []FileListingEntry, err error) {
-	_, ls, _, err := s.getContents(ctx, path, afterRef)
+	_, ls, _, err := s.getContents(ctx, path, commitRef)
 	var result []FileListingEntry
 
 	if err != nil {
@@ -102,8 +102,8 @@ func (s GithubClient) compareCommits(ctx context.Context, base, head string) (
 	return s.delegate.Repositories.CompareCommits(ctx, s.repo.Namespace, s.repo.Name, base, head)
 }
 
-func (s GithubClient) getContents(ctx context.Context, path string, afterRef string) (
+func (s GithubClient) getContents(ctx context.Context, path string, commitRef string) (
 	fileContent *github.RepositoryContent, directoryContent []*github.RepositoryContent, resp *github.Response, err error) {
-	opts := &github.RepositoryContentGetOptions{Ref: afterRef}
+	opts := &github.RepositoryContentGetOptions{Ref: commitRef}
 	return s.delegate.Repositories.GetContents(ctx, s.repo.Namespace, s.repo.Name, path, opts)
 }

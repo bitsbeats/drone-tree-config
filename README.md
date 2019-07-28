@@ -22,6 +22,8 @@ Environment variables:
 - `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
 - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
 - `GITHUB_SERVER`: Custom Github server for Github Enterprise
+- `BITBUCKET_CLIENT`: Alternative to GITHUB_TOKEN, same value as DRONE_BITBUCKET_CLIENT.
+- `BITBUCKET_SECRET`: Alternative to GITHUB_TOKEN, same value as DRONE_BITBUCKET_SECRET.
 
 If `PLUGIN_CONCAT` is not set, the first `.drone.yml` will be used.
 

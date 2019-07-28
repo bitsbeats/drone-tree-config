@@ -9,6 +9,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/kelseyhightower/envconfig v1.3.0
 	github.com/sirupsen/logrus v1.4.1
+	github.com/wbrefvem/go-bitbucket v0.0.0-20190128183802-fc08fd046abb
 	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
 	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect

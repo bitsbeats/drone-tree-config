@@ -19,23 +19,28 @@ import (
 )
 
 // New creates a drone plugin
-func New(server, token string, concat bool, fallback bool, maxDepth int) config.Plugin {
+func New(server, gitHubToken string, bitBucketClient string, bitBucketSecret string,
+	concat bool, fallback bool, maxDepth int) config.Plugin {
 	return &Plugin{
-		server:   server,
-		token:    token,
-		concat:   concat,
-		fallback: fallback,
-		maxDepth: maxDepth,
+		server:          server,
+		gitHubToken:     gitHubToken,
+		bitBucketClient: bitBucketClient,
+		bitBucketSecret: bitBucketSecret,
+		concat:          concat,
+		fallback:        fallback,
+		maxDepth:        maxDepth,
 	}
 }
 
 type (
 	Plugin struct {
-		server   string
-		token    string
-		concat   bool
-		fallback bool
-		maxDepth int
+		server          string
+		gitHubToken     string
+		bitBucketClient string
+		bitBucketSecret string
+		concat          bool
+		fallback        bool
+		maxDepth        int
 	}
 
 	droneConfig struct {
@@ -53,7 +58,15 @@ type (
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 
 func (p *Plugin) NewScmClient(uuid uuid.UUID, repo drone.Repo, ctx context.Context) scm_clients.ScmClient {
-	scmClient, err := scm_clients.GitHubClient(uuid, p.server, p.token, repo, ctx)
+	var scmClient scm_clients.ScmClient
+	var err error
+	if p.gitHubToken != "" {
+		scmClient, err = scm_clients.NewGitHubClient(uuid, p.server, p.gitHubToken, repo, ctx)
+	} else if p.bitBucketClient != "" {
+		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
+	} else {
+		err = fmt.Errorf("no SCM credentials specified")
+	}
 	if err != nil {
 		logrus.Errorf("Unable to connect to SCM server.")
 	}

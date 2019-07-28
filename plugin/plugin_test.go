@@ -35,7 +35,7 @@ func TestPlugin(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, false, true, 2)
+	plugin := New(ts.URL, mockToken, "", "", false, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +63,7 @@ func TestConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true, true, 2)
+	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -91,7 +91,7 @@ func TestPullRequest(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true, true, 2)
+	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -119,7 +119,7 @@ func TestCron(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, false, true, 2)
+	plugin := New(ts.URL, mockToken, "", "", false, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -147,7 +147,7 @@ func TestCronConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New(ts.URL, mockToken, true, true, 2)
+	plugin := New(ts.URL, mockToken, "", "", true, true, 2)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
