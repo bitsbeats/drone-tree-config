@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/drone/drone-go/drone"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"github.com/wbrefvem/go-bitbucket"
 	"io/ioutil"
 	"log"
@@ -16,16 +18,17 @@ import (
 )
 
 type BitBucketClient struct {
-	delegate *bitbucket.APIClient
-	httpConf *bitbucket.Configuration
-	repo     drone.Repo
+	delegate      *bitbucket.APIClient
+	basePath      string
+	authorization string
+	repo          drone.Repo
 }
 
 type BitBucketCredentials struct {
 	AccessToken string `json:"access_token"`
 }
 
-func NewBitBucketClient(authServer string, server string,
+func NewBitBucketClient(someUuid uuid.UUID, authServer string, server string,
 	clientID string, clientSecret string, repo drone.Repo) (ScmClient, error) {
 
 	form := url.Values{}
@@ -41,22 +44,27 @@ func NewBitBucketClient(authServer string, server string,
 		return nil, err
 	}
 	var creds BitBucketCredentials
-	if err = json.NewDecoder(response.Body).Decode(&creds); err != nil {
+	if err = json.NewDecoder(response.Body).Decode(&creds); err != nil && creds.AccessToken != "" {
 		return nil, err
 	}
+	logrus.Infof("%s Authenticated with BitBucket: '%v'", someUuid, authServer)
 
+	authorization := "Bearer " + creds.AccessToken
 	conf := bitbucket.NewConfiguration()
 	conf.Host = server
 	conf.Scheme = "https"
-	conf.AddDefaultHeader("Authorization", "Bearer "+creds.AccessToken)
+	conf.AddDefaultHeader("Authorization", authorization)
 
+	basePath := server + "/2.0"
 	client := bitbucket.NewAPIClient(conf)
-	client.ChangeBasePath(server)
+	client.ChangeBasePath(basePath)
+	logrus.Infof("%s Created BitBucket API client: '%v'", someUuid, server)
 
 	return BitBucketClient{
-		delegate: client,
-		httpConf: conf,
-		repo:     repo,
+		delegate:      client,
+		basePath:      basePath,
+		authorization: authorization,
+		repo:          repo,
 	}, nil
 }
 
@@ -64,12 +72,12 @@ func (s BitBucketClient) ChangedFilesInPullRequest(ctx context.Context, pullRequ
 	var changedFiles []string
 	// Custom implementation because the BitBucket client does not specify the right type
 	requestUrl := fmt.Sprintf("%v/repositories/%v/%v/pullrequests/%v/diffstat",
-		s.httpConf.Host, s.repo.Namespace, s.repo.Name, pullRequestID)
+		s.basePath, s.repo.Namespace, s.repo.Name, pullRequestID)
 	request, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		return []string{}, fmt.Errorf("failed to construct request for pull request %v", pullRequestID)
 	}
-	request.Header.Add("Authorization", s.httpConf.DefaultHeader["Authorization"])
+	request.Header.Add("Authorization", s.authorization)
 	response, err := http.DefaultClient.Do(request)
 
 	if response == nil || err != nil {
@@ -102,12 +110,12 @@ func (s BitBucketClient) ChangedFilesInDiff(ctx context.Context, base string, he
 func (s BitBucketClient) GetFileContents(ctx context.Context, path string, commitRef string) (content string, err error) {
 	// Custom implementation because the BitBucket client always tries to deserialize the file as JSON
 	requestUrl := fmt.Sprintf("%v/repositories/%v/%v/src/%v/%v",
-		s.httpConf.Host, s.repo.Namespace, s.repo.Name, commitRef, path)
+		s.basePath, s.repo.Namespace, s.repo.Name, commitRef, path)
 	request, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
 		return "", fmt.Errorf("failed to construct request for %s", path)
 	}
-	request.Header.Add("Authorization", s.httpConf.DefaultHeader["Authorization"])
+	request.Header.Add("Authorization", s.authorization)
 	response, err := http.DefaultClient.Do(request)
 
 	if response == nil || err != nil {

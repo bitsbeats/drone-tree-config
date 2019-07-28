@@ -65,7 +65,7 @@ func (p *Plugin) NewScmClient(uuid uuid.UUID, repo drone.Repo, ctx context.Conte
 	if p.gitHubToken != "" {
 		scmClient, err = scm_clients.NewGitHubClient(uuid, p.server, p.gitHubToken, repo, ctx)
 	} else if p.bitBucketClient != "" {
-		scmClient, err = scm_clients.NewBitBucketClient(p.authServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
+		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.authServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
 	} else {
 		err = fmt.Errorf("no SCM credentials specified")
 	}

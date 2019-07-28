@@ -2,6 +2,7 @@ package scm_clients
 
 import (
 	"github.com/drone/drone-go/drone"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
@@ -65,7 +66,7 @@ func createBitBucketClient(server string) (ScmClient, error) {
 		Name:      "dronetest",
 		Slug:      "foosinn/dronetest",
 	}
-	return NewBitBucketClient(server, server, mockClientId, mockSecret, repo)
+	return NewBitBucketClient(uuid.New(), server, server, mockClientId, mockSecret, repo)
 }
 
 func testMuxBitBucket() *http.ServeMux {
@@ -75,22 +76,22 @@ func testMuxBitBucket() *http.ServeMux {
 			f, _ := os.Open("../testdata/bitbucket/token.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repositories/foosinn/dronetest/diffstat/2897b31ec3a1b59279a08a8ad54dc360686327f7..8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/diffstat/2897b31ec3a1b59279a08a8ad54dc360686327f7..8ecad91991d5da985a2a8dd97cc19029dc1c2899",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/compare.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repositories/foosinn/dronetest/pullrequests/3/diffstat",
+	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/pullrequests/3/diffstat",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/pull_3_files.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/.drone.yml",
+	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/afolder_.drone.yml")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/",
+	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/afolder/",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/afolder.json")
 			_, _ = io.Copy(w, f)
