@@ -100,7 +100,7 @@ func (s BitBucketClient) GetFileContents(ctx context.Context, path string, commi
 		return "", err
 	}
 	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("failed to get %s: status code %s", path, response.StatusCode)
+		return "", fmt.Errorf("failed to get %s: status code %v", path, response.StatusCode)
 	}
 	bodyBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
