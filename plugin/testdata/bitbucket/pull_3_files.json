@@ -1,0 +1,31 @@
+{
+  "pagelen": 500,
+  "values": [
+    {
+      "status": "modified",
+      "old": {
+        "path": "e/f/g/h/.drone.yml",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/e/f/g/h/.drone.yml"
+          }
+        }
+      },
+      "lines_removed": 0,
+      "lines_added": 1,
+      "new": {
+        "path": "e/f/g/h/.drone.yml",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/e69de29bb2d1d6434b8b29ae775ad8c2e48c5391/e/f/g/h/.drone.yml"
+          }
+        }
+      },
+      "type": "diffstat"
+    }
+  ],
+  "page": 1,
+  "size": 1
+}

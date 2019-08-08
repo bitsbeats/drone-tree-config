@@ -4,5 +4,11 @@
     "size": 625,
     "name": ".drone.yml",
     "path": "afolder/.drone.yml"
+  },
+  {
+    "type": "dir",
+    "size": 0,
+    "name": "abfolder",
+    "path": "afolder/abfolder"
   }
 ]

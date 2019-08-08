@@ -1,0 +1,31 @@
+{
+  "pagelen": 500,
+  "values": [
+    {
+      "status": "modified",
+      "old": {
+        "path": "a/b/c/d/file",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/2897b31ec3a1b59279a08a8ad54dc360686327f7/a/b/c/d/file"
+          }
+        }
+      },
+      "lines_removed": 0,
+      "lines_added": 2,
+      "new": {
+        "path": "a/b/c/d/file",
+        "type": "commit_file",
+        "links": {
+          "self": {
+            "href": "https://api.bitbucket.org/2.0/repositories/foosinn/dronetest/src/8ecad91991d5da985a2a8dd97cc19029dc1c2899/a/b/c/d/file"
+          }
+        }
+      },
+      "type": "diffstat"
+    }
+  ],
+  "page": 1,
+  "size": 1
+}
