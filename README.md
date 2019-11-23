@@ -8,7 +8,10 @@ There is an official Docker image: https://hub.docker.com/r/bitsbeats/drone-tree
 
 ## Limitations
 
-Currently supports only Github.
+Currently supports 
+
+* Github
+* Bitbucket [#4](https://github.com/bitsbeats/drone-tree-config/pull/4)
 
 ## Usage
 
