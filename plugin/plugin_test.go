@@ -35,7 +35,12 @@ func TestPlugin(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", false, true, 2, "")
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +68,13 @@ func TestConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2, "")
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -91,7 +102,13 @@ func TestPullRequest(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2, "")
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -119,7 +136,12 @@ func TestCron(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", false, true, 2, "")
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -181,7 +203,13 @@ func TestMatchEnable(t *testing.T) {
 
 	for name, s := range scenarios {
 		t.Run(name, func(t *testing.T) {
-			plugin := New("", ts.URL, mockToken, "", "", false, true, 2, s.file)
+			plugin := New(
+				WithServer(ts.URL),
+				WithGithubToken(mockToken),
+				WithFallback(true),
+				WithMaxDepth(2),
+				WithRegexFile(s.file),
+			)
 			droneConfig, err := plugin.Find(noContext, req)
 			if err != nil {
 				t.Error(err)
@@ -211,7 +239,13 @@ func TestCronConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2, "")
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
