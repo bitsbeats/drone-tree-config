@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"path"
 	"regexp"
 	"strconv"
@@ -20,7 +21,7 @@ import (
 
 // New creates a drone plugin
 func New(authServer string, server string, gitHubToken string, bitBucketClient string, bitBucketSecret string,
-	concat bool, fallback bool, maxDepth int) config.Plugin {
+	concat bool, fallback bool, maxDepth int, regexFile string) config.Plugin {
 	return &Plugin{
 		authServer:      authServer,
 		server:          server,
@@ -30,6 +31,7 @@ func New(authServer string, server string, gitHubToken string, bitBucketClient s
 		concat:          concat,
 		fallback:        fallback,
 		maxDepth:        maxDepth,
+		regexFile:       regexFile,
 	}
 }
 
@@ -43,6 +45,7 @@ type (
 		concat          bool
 		fallback        bool
 		maxDepth        int
+		regexFile       string
 	}
 
 	droneConfig struct {
@@ -85,6 +88,17 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	client := p.NewScmClient(someUuid, droneRequest.Repo, ctx)
 
 	req := request{droneRequest, someUuid, client}
+
+	// make sure this plugin is enabled for the requested repo slug
+	if match := p.regexMatch(&request{UUID: someUuid}, droneRequest); !match {
+		// use the default (top-most) drone.yml
+		configData, err := p.getDefaultConfigData(ctx, &req)
+		if err != nil {
+			return nil, err
+		}
+
+		return &drone.Config{Data: configData}, nil
+	}
 
 	// get changed files
 	changedFiles, err := p.getGithubChanges(ctx, &req)
@@ -272,6 +286,16 @@ func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 	return configData, nil
 }
 
+// getDefaultConfigData reads the 'drone.yml' from the root of the repo -- the default behavior of drone
+func (p *Plugin) getDefaultConfigData(ctx context.Context, req *request) (configData string, err error) {
+	// download file from git
+	fileContent, _, err := p.getGithubDroneConfig(ctx, req, ".drone.yml")
+	if err != nil {
+		return "", err
+	}
+	return fileContent, nil
+}
+
 // droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
 // see https://docs.drone.io/user-guide/pipeline/multi-machine/
 func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string {
@@ -288,4 +312,56 @@ func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string
 		}
 	}
 	return droneConfig
+}
+
+// regexMatch determines if the plugin is enabled for the repo slug. decisions are made by considering the
+// regex patterns in the regexFile.
+//
+// returns true (match) or false (no match). false means the repo slug should be bypassed
+func (p *Plugin) regexMatch(req *request, droneRequest *config.Request) bool {
+	slug := droneRequest.Repo.Slug
+	noMatchErr := fmt.Errorf("%s no match: %s", req.UUID, slug)
+	matchMsg := fmt.Sprintf("%s match: %s", req.UUID, slug)
+
+	// requires a regex file
+	if p.regexFile == "" {
+		// match
+		logrus.Info(matchMsg)
+		return true
+	}
+
+	buf, err := ioutil.ReadFile(p.regexFile)
+	if err != nil {
+		// match
+		logrus.Warnf("%s regex file read error: %s", req.UUID, err)
+		logrus.Info(matchMsg)
+		return true
+	}
+
+	lines := strings.Split(string(buf), "\n")
+
+	for _, line := range lines {
+		// ignore empty line or line starting with "#" (comment)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		r, err := regexp.Compile(line)
+		if err != nil {
+			// emit a warning and consider the rest of the lines
+			logrus.Warnf("%s %s", req.UUID, err)
+			continue
+		}
+
+		// the repo is enabled for the plugin, when there is a regex match
+		if r.MatchString(slug) {
+			// match
+			logrus.Info(matchMsg)
+			return true
+		}
+	}
+
+	// no match
+	logrus.Info(noMatchErr)
+	return false
 }

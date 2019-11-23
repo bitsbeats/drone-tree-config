@@ -16,6 +16,7 @@ type (
 		MaxDepth        int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		Fallback        bool   `envconfig:"PLUGIN_FALLBACK"`
 		Debug           bool   `envconfig:"PLUGIN_DEBUG"`
+		RegexFile       string `envconfig:"PLUGIN_REGEX_FILE"`
 		Address         string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret          string `envconfig:"PLUGIN_SECRET"`
 		GitHubToken     string `envconfig:"GITHUB_TOKEN"`
@@ -58,6 +59,7 @@ func main() {
 			spec.Concat,
 			spec.Fallback,
 			spec.MaxDepth,
+			spec.RegexFile,
 		),
 		spec.Secret,
 		logrus.StandardLogger(),
