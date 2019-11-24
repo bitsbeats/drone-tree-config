@@ -147,7 +147,7 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	req := request{droneRequest, someUuid, client}
 
 	// make sure this plugin is enabled for the requested repo slug
-	if match := p.regexMatch(&request{UUID: someUuid}, droneRequest); !match {
+	if match := p.regexMatch(&req); !match {
 		// use the default (top-most) drone.yml
 		configData, err := p.getDefaultConfigData(ctx, &req)
 		if err != nil {
@@ -346,7 +346,7 @@ func (p *Plugin) getAllConfigData(ctx context.Context, req *request, dir string,
 // getDefaultConfigData reads the 'drone.yml' from the root of the repo -- the default behavior of drone
 func (p *Plugin) getDefaultConfigData(ctx context.Context, req *request) (configData string, err error) {
 	// download file from git
-	fileContent, _, err := p.getGithubDroneConfig(ctx, req, ".drone.yml")
+	fileContent, _, err := p.getGithubDroneConfig(ctx, req, req.Repo.Config)
 	if err != nil {
 		return "", err
 	}
@@ -375,9 +375,9 @@ func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string
 // regex patterns in the regexFile.
 //
 // returns true (match) or false (no match). false means the repo slug should be bypassed
-func (p *Plugin) regexMatch(req *request, droneRequest *config.Request) bool {
-	slug := droneRequest.Repo.Slug
-	noMatchErr := fmt.Errorf("%s no match: %s", req.UUID, slug)
+func (p *Plugin) regexMatch(req *request) bool {
+	slug := req.Repo.Slug
+	noMatchMsg := fmt.Sprintf("%s no match: %s", req.UUID, slug)
 	matchMsg := fmt.Sprintf("%s match: %s", req.UUID, slug)
 
 	// requires a regex file
@@ -419,6 +419,6 @@ func (p *Plugin) regexMatch(req *request, droneRequest *config.Request) bool {
 	}
 
 	// no match
-	logrus.Info(noMatchErr)
+	logrus.Info(noMatchMsg)
 	return false
 }
