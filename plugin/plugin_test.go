@@ -35,7 +35,12 @@ func TestPlugin(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", false, true, 2)
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -63,7 +68,13 @@ func TestConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -91,7 +102,13 @@ func TestPullRequest(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -119,7 +136,12 @@ func TestCron(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", false, true, 2)
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)
@@ -128,6 +150,76 @@ func TestCron(t *testing.T) {
 
 	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n", droneConfig.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
+	}
+}
+
+func TestMatchEnable(t *testing.T) {
+	ts := httptest.NewServer(testMux())
+	defer ts.Close()
+
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.yml",
+		},
+	}
+
+	type scenario struct {
+		file string
+		want string
+	}
+
+	noMatchWant := "kind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n"
+	matchWant := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n"
+
+	scenarios := map[string]scenario{
+		// matches all repos for this plugin
+		"MatchAll": {
+			file: "testdata/regex/matchall",
+			want: matchWant,
+		},
+		// matches no repos for this plugin
+		"MatchNone": {
+			file: "testdata/regex/matchnone",
+			want: noMatchWant,
+		},
+		// matches all repos for this plugin. specified file with match rules does not exist
+		"FileError": {
+			file: "no_such_file",
+			want: matchWant,
+		},
+		// matches all repos for this plugin. there is no file with match rules
+		"NoFileSpecified": {
+			file: "",
+			want: matchWant,
+		},
+	}
+
+	for name, s := range scenarios {
+		t.Run(name, func(t *testing.T) {
+			plugin := New(
+				WithServer(ts.URL),
+				WithGithubToken(mockToken),
+				WithFallback(true),
+				WithMaxDepth(2),
+				WithRegexFile(s.file),
+			)
+			droneConfig, err := plugin.Find(noContext, req)
+			if err != nil {
+				t.Error(err)
+				return
+			}
+
+			if got := droneConfig.Data; s.want != got {
+				t.Errorf("Want %q got %q", s.want, got)
+			}
+		})
 	}
 }
 
@@ -147,7 +239,13 @@ func TestCronConcat(t *testing.T) {
 			Config:    ".drone.yml",
 		},
 	}
-	plugin := New("", ts.URL, mockToken, "", "", true, true, 2)
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithFallback(true),
+		WithMaxDepth(2),
+	)
 	droneConfig, err := plugin.Find(noContext, req)
 	if err != nil {
 		t.Error(err)

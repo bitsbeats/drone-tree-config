@@ -16,6 +16,7 @@ type (
 		MaxDepth        int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		Fallback        bool   `envconfig:"PLUGIN_FALLBACK"`
 		Debug           bool   `envconfig:"PLUGIN_DEBUG"`
+		RegexFile       string `envconfig:"PLUGIN_REGEX_FILE"`
 		Address         string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret          string `envconfig:"PLUGIN_SECRET"`
 		GitHubToken     string `envconfig:"GITHUB_TOKEN"`
@@ -50,14 +51,15 @@ func main() {
 
 	handler := config.Handler(
 		plugin.New(
-			spec.AuthServer,
-			spec.Server,
-			spec.GitHubToken,
-			spec.BitBucketClient,
-			spec.BitBucketSecret,
-			spec.Concat,
-			spec.Fallback,
-			spec.MaxDepth,
+			plugin.WithAuthServer(spec.AuthServer),
+			plugin.WithServer(spec.Server),
+			plugin.WithGithubToken(spec.GitHubToken),
+			plugin.WithBitBucketClient(spec.BitBucketClient),
+			plugin.WithBitBucketSecret(spec.BitBucketSecret),
+			plugin.WithConcat(spec.Concat),
+			plugin.WithFallback(spec.Fallback),
+			plugin.WithMaxDepth(spec.MaxDepth),
+			plugin.WithRegexFile(spec.RegexFile),
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

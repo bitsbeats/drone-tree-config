@@ -1,0 +1,5 @@
+#a comment line is ignored
+(fails to compile} due to syntax error
+^no-match$
+
+#the empty line above is also ignored
