@@ -208,7 +208,7 @@ func TestMatchEnable(t *testing.T) {
 				WithGithubToken(mockToken),
 				WithFallback(true),
 				WithMaxDepth(2),
-				WithRegexFile(s.file),
+				WithWhitelistFile(s.file),
 			)
 			droneConfig, err := plugin.Find(noContext, req)
 			if err != nil {

@@ -9,23 +9,23 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// regexMatch determines if the plugin is enabled for the repo slug. decisions are made by considering the
-// regex patterns in the regexFile.
+// whitelisted determines if the plugin is enabled for the repo slug. decisions are made
+// by considering the regex patterns in the regexFile.
 //
 // returns true (match) or false (no match). false means the repo slug should be bypassed
-func (p *Plugin) regexMatch(req *request) bool {
+func (p *Plugin) whitelisted(req *request) bool {
 	slug := req.Repo.Slug
 	noMatchMsg := fmt.Sprintf("%s no match: %s", req.UUID, slug)
 	matchMsg := fmt.Sprintf("%s match: %s", req.UUID, slug)
 
 	// requires a regex file
-	if p.regexFile == "" {
+	if p.whitelistFile == "" {
 		// match
 		logrus.Info(matchMsg)
 		return true
 	}
 
-	buf, err := ioutil.ReadFile(p.regexFile)
+	buf, err := ioutil.ReadFile(p.whitelistFile)
 	if err != nil {
 		// match
 		logrus.Warnf("%s regex file read error: %s", req.UUID, err)

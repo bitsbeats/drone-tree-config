@@ -16,7 +16,7 @@ type (
 		MaxDepth        int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		Fallback        bool   `envconfig:"PLUGIN_FALLBACK"`
 		Debug           bool   `envconfig:"PLUGIN_DEBUG"`
-		RegexFile       string `envconfig:"PLUGIN_REGEX_FILE"`
+		WhitelistFile   string `envconfig:"PLUGIN_WHITELIST_FILE"`
 		Address         string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret          string `envconfig:"PLUGIN_SECRET"`
 		GitHubToken     string `envconfig:"GITHUB_TOKEN"`
@@ -59,7 +59,7 @@ func main() {
 			plugin.WithConcat(spec.Concat),
 			plugin.WithFallback(spec.Fallback),
 			plugin.WithMaxDepth(spec.MaxDepth),
-			plugin.WithRegexFile(spec.RegexFile),
+			plugin.WithWhitelistFile(spec.WhitelistFile),
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

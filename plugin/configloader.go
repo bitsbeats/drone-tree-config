@@ -2,8 +2,8 @@ package plugin
 
 import (
 	"context"
-	"strings"
 	"path"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"

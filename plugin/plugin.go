@@ -6,9 +6,9 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/bitsbeats/drone-tree-config/plugin/scm_clients"
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
-	"github.com/bitsbeats/drone-tree-config/plugin/scm_clients"
 
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
@@ -24,7 +24,7 @@ type (
 		concat          bool
 		fallback        bool
 		maxDepth        int
-		regexFile       string
+		whitelistFile   string
 	}
 
 	droneConfig struct {
@@ -61,7 +61,7 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	req := request{droneRequest, someUuid, client}
 
 	// make sure this plugin is enabled for the requested repo slug
-	if match := p.regexMatch(&req); !match {
+	if ok := p.whitelisted(&req); !ok {
 		// use the default (top-most) drone.yml
 		configData, err := p.getConfigDefault(ctx, &req)
 		if err != nil {

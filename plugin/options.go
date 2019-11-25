@@ -56,9 +56,9 @@ func WithMaxDepth(maxDepth int) func(*Plugin) {
 	}
 }
 
-// WithRegexFile configures with repo slug regex match list file
-func WithRegexFile(regexFile string) func(*Plugin) {
+// WithWhitelistFile configures with repo slug regex match list file
+func WithWhitelistFile(whitelistFile string) func(*Plugin) {
 	return func(p *Plugin) {
-		p.regexFile = regexFile
+		p.whitelistFile = whitelistFile
 	}
 }
