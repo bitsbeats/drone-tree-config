@@ -1,6 +1,6 @@
 module github.com/bitsbeats/drone-tree-config
 
-go 1.12
+go 1.13
 
 require (
 	github.com/drone/drone-go v1.0.4
