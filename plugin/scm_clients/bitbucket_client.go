@@ -28,7 +28,7 @@ type BitBucketCredentials struct {
 	AccessToken string `json:"access_token"`
 }
 
-func NewBitBucketClient(someUuid uuid.UUID, authServer string, server string,
+func NewBitBucketClient(someUUID uuid.UUID, authServer string, server string,
 	clientID string, clientSecret string, repo drone.Repo) (ScmClient, error) {
 
 	form := url.Values{}
@@ -47,7 +47,7 @@ func NewBitBucketClient(someUuid uuid.UUID, authServer string, server string,
 	if err = json.NewDecoder(response.Body).Decode(&creds); err != nil && creds.AccessToken != "" {
 		return nil, err
 	}
-	logrus.Infof("%s Authenticated with BitBucket: '%v'", someUuid, authServer)
+	logrus.Infof("%s Authenticated with BitBucket: '%v'", someUUID, authServer)
 
 	authorization := "Bearer " + creds.AccessToken
 	conf := bitbucket.NewConfiguration()
@@ -58,7 +58,7 @@ func NewBitBucketClient(someUuid uuid.UUID, authServer string, server string,
 	basePath := server + "/2.0"
 	client := bitbucket.NewAPIClient(conf)
 	client.ChangeBasePath(basePath)
-	logrus.Infof("%s Created BitBucket API client: '%v'", someUuid, server)
+	logrus.Infof("%s Created BitBucket API client: '%v'", someUUID, server)
 
 	return BitBucketClient{
 		delegate:      client,

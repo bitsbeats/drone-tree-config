@@ -14,20 +14,19 @@ import (
 )
 
 // NewScmClient creates a new client for the git provider
-func (p *Plugin) NewScmClient(uuid uuid.UUID, repo drone.Repo, ctx context.Context) scm_clients.ScmClient {
-	var scmClient scm_clients.ScmClient
-	var err error
-	if p.gitHubToken != "" {
-		scmClient, err = scm_clients.NewGitHubClient(uuid, p.server, p.gitHubToken, repo, ctx)
-	} else if p.bitBucketClient != "" {
+func (p *Plugin) NewScmClient(ctx context.Context, uuid uuid.UUID, repo drone.Repo) (scmClient scm_clients.ScmClient, err error) {
+	switch {
+	case p.gitHubToken != "":
+		scmClient, err = scm_clients.NewGitHubClient(ctx, uuid, p.server, p.gitHubToken, repo)
+	case p.bitBucketClient != "":
 		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.authServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
-	} else {
+	default:
 		err = fmt.Errorf("no SCM credentials specified")
 	}
 	if err != nil {
-		logrus.Errorf("Unable to connect to SCM server.")
+		return nil, fmt.Errorf("unable to connect to SCM server: %s", err)
 	}
-	return scmClient
+	return
 }
 
 // getChanges tries to get a list of changed files from github

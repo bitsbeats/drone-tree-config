@@ -56,7 +56,10 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	defer logrus.Infof("%s finished", someUuid)
 
 	// connect to scm
-	client := p.NewScmClient(someUuid, droneRequest.Repo, ctx)
+	client, err := p.NewScmClient(ctx, someUuid, droneRequest.Repo)
+	if err != nil {
+		return nil, err
+	}
 
 	req := request{droneRequest, someUuid, client}
 

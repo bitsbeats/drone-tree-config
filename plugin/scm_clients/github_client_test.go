@@ -66,7 +66,7 @@ func createGithubClient(server string) (ScmClient, error) {
 		Name:      "dronetest",
 		Slug:      "foosinn/dronetest",
 	}
-	return NewGitHubClient(someUuid, server, mockGithubToken, repo, noContext)
+	return NewGitHubClient(noContext, someUuid, server, mockGithubToken, repo)
 }
 
 func testMuxGithub() *http.ServeMux {

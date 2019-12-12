@@ -15,7 +15,7 @@ type GithubClient struct {
 	repo     drone.Repo
 }
 
-func NewGitHubClient(uuid uuid.UUID, server string, token string, repo drone.Repo, ctx context.Context) (ScmClient, error) {
+func NewGitHubClient(ctx context.Context, uuid uuid.UUID, server string, token string, repo drone.Repo) (ScmClient, error) {
 	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	))
