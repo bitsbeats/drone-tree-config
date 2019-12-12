@@ -24,13 +24,18 @@ Currently supports
 - `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 - `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
 - `PLUGIN_WHITELIST_FILE`: (Optional) Path to regex pattern file. Matches the repo slug(s) against a list of regex patterns. Defaults to `""`, match everything
-- `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
-- `AUTH_SERVER`: Custom auth server (uses SERVER if empty)
-- `SERVER`: Custom SCM server
-- `BITBUCKET_CLIENT`: Alternative to GITHUB_TOKEN, same value as DRONE_BITBUCKET_CLIENT.
-- `BITBUCKET_SECRET`: Alternative to GITHUB_TOKEN, same value as DRONE_BITBUCKET_SECRET.
 
-If `PLUGIN_CONCAT` is not set, the first `.drone.yml` will be used.
+Backend specific options
+
+- `SERVER`: Custom SCM server
+- GitHub:
+  - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
+- Bitbucket
+  - `BITBUCKET_AUTH_SERVER`: Custom auth server (uses SERVER if empty)
+  - `BITBUCKET_CLIENT`: Credentials for Bitbucket access
+  - `BITBUCKET_SECRET`: Credentials for Bitbucket access
+
+If `PLUGIN_CONCAT` is not set, the first found `.drone.yml` will be used.
 
 #### Example docker-compose:
 

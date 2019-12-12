@@ -12,18 +12,18 @@ import (
 
 type (
 	spec struct {
-		Concat          bool   `envconfig:"PLUGIN_CONCAT"`
-		MaxDepth        int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
-		Fallback        bool   `envconfig:"PLUGIN_FALLBACK"`
-		Debug           bool   `envconfig:"PLUGIN_DEBUG"`
-		WhitelistFile   string `envconfig:"PLUGIN_WHITELIST_FILE"`
-		Address         string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
-		Secret          string `envconfig:"PLUGIN_SECRET"`
-		GitHubToken     string `envconfig:"GITHUB_TOKEN"`
-		AuthServer      string `envconfig:"AUTH_SERVER"`
-		Server          string `envconfig:"SERVER"`
-		BitBucketClient string `envconfig:"BITBUCKET_CLIENT"`
-		BitBucketSecret string `envconfig:"BITBUCKET_SECRET"`
+		Concat              bool   `envconfig:"PLUGIN_CONCAT"`
+		MaxDepth            int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
+		Fallback            bool   `envconfig:"PLUGIN_FALLBACK"`
+		Debug               bool   `envconfig:"PLUGIN_DEBUG"`
+		WhitelistFile       string `envconfig:"PLUGIN_WHITELIST_FILE"`
+		Address             string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
+		Secret              string `envconfig:"PLUGIN_SECRET"`
+		GitHubToken         string `envconfig:"GITHUB_TOKEN"`
+		Server              string `envconfig:"SERVER" default:"https://api.github.com"`
+		BitBucketAuthServer string `envconfig:"BITBUCKET_AUTH_SERVER"`
+		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
+		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
 	}
 )
 
@@ -45,20 +45,20 @@ func main() {
 	if spec.Address == "" {
 		spec.Address = ":3000"
 	}
-	if spec.AuthServer == "" {
-		spec.AuthServer = spec.Server
+	if spec.BitBucketAuthServer == "" {
+		spec.BitBucketAuthServer = spec.Server
 	}
 
 	handler := config.Handler(
 		plugin.New(
-			plugin.WithAuthServer(spec.AuthServer),
-			plugin.WithServer(spec.Server),
-			plugin.WithGithubToken(spec.GitHubToken),
+			plugin.WithBitBucketAuthServer(spec.BitBucketAuthServer),
 			plugin.WithBitBucketClient(spec.BitBucketClient),
 			plugin.WithBitBucketSecret(spec.BitBucketSecret),
 			plugin.WithConcat(spec.Concat),
 			plugin.WithFallback(spec.Fallback),
+			plugin.WithGithubToken(spec.GitHubToken),
 			plugin.WithMaxDepth(spec.MaxDepth),
+			plugin.WithServer(spec.Server),
 			plugin.WithWhitelistFile(spec.WhitelistFile),
 		),
 		spec.Secret,

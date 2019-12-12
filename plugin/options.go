@@ -1,12 +1,5 @@
 package plugin
 
-// WithAuthServer configures an auth server
-func WithAuthServer(authServer string) func(*Plugin) {
-	return func(p *Plugin) {
-		p.authServer = authServer
-	}
-}
-
 // WithServer configures with a custom SCM server
 func WithServer(server string) func(*Plugin) {
 	return func(p *Plugin) {
@@ -18,6 +11,13 @@ func WithServer(server string) func(*Plugin) {
 func WithGithubToken(gitHubToken string) func(*Plugin) {
 	return func(p *Plugin) {
 		p.gitHubToken = gitHubToken
+	}
+}
+
+// WithBitBucketAuthServer configures an auth server
+func WithBitBucketAuthServer(bitBucketAuthServer string) func(*Plugin) {
+	return func(p *Plugin) {
+		p.bitBucketAuthServer = bitBucketAuthServer
 	}
 }
 

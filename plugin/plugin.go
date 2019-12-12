@@ -16,15 +16,16 @@ import (
 
 type (
 	Plugin struct {
-		authServer      string
-		server          string
-		gitHubToken     string
-		bitBucketClient string
-		bitBucketSecret string
-		concat          bool
-		fallback        bool
-		maxDepth        int
-		whitelistFile   string
+		server              string
+		gitHubToken         string
+		bitBucketAuthServer string
+		bitBucketClient     string
+		bitBucketSecret     string
+
+		concat        bool
+		fallback      bool
+		maxDepth      int
+		whitelistFile string
 	}
 
 	droneConfig struct {
