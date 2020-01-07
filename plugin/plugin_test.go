@@ -172,11 +172,12 @@ func TestMatchEnable(t *testing.T) {
 
 	type scenario struct {
 		file string
-		want string
+		want *drone.Config
 	}
 
-	noMatchWant := "kind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n"
-	matchWant := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n"
+	matchWant := &drone.Config{
+		Data: "---\nkind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n",
+	}
 
 	scenarios := map[string]scenario{
 		// matches all repos for this plugin
@@ -187,7 +188,7 @@ func TestMatchEnable(t *testing.T) {
 		// matches no repos for this plugin
 		"MatchNone": {
 			file: "testdata/regex/matchnone",
-			want: noMatchWant,
+			want: nil,
 		},
 		// matches all repos for this plugin. specified file with match rules does not exist
 		"FileError": {
@@ -216,8 +217,14 @@ func TestMatchEnable(t *testing.T) {
 				return
 			}
 
-			if got := droneConfig.Data; s.want != got {
-				t.Errorf("Want %q got %q", s.want, got)
+			if droneConfig != nil {
+				if got := droneConfig.Data; s.want.Data != got {
+					t.Errorf("Want %q got %q", s.want, got)
+				}
+			} else {
+				if got := droneConfig; s.want != got {
+					t.Errorf("Want %q got %q", s.want, got)
+				}
 			}
 		})
 	}

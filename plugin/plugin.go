@@ -66,13 +66,8 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 
 	// make sure this plugin is enabled for the requested repo slug
 	if ok := p.whitelisted(&req); !ok {
-		// use the default (top-most) drone.yml
-		configData, err := p.getConfigDefault(ctx, &req)
-		if err != nil {
-			return nil, err
-		}
-
-		return &drone.Config{Data: configData}, nil
+		// do the default behavior by returning nil, nil
+		return nil, nil
 	}
 
 	// get changed files

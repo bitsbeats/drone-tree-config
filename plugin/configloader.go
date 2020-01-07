@@ -91,16 +91,6 @@ func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string,
 	return configData, nil
 }
 
-// getConfigDefault reads just the 'drone.yml' from the root of the repo -- the default behavior of drone
-func (p *Plugin) getConfigDefault(ctx context.Context, req *request) (configData string, err error) {
-	// download file from git
-	fileContent, _, err := p.getDroneConfig(ctx, req, req.Repo.Config)
-	if err != nil {
-		return "", err
-	}
-	return fileContent, nil
-}
-
 // getDroneConfig downloads a drone config and validates it
 func (p *Plugin) getDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
 	fileContent, err := p.getScmFile(ctx, req, file)
