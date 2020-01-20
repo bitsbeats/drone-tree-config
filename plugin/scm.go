@@ -48,13 +48,22 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 			logrus.Errorf("%s unable to fetch diff for Pull request %v", req.UUID, err)
 		}
 	} else {
-		// use diff to get changed files
-		before := req.Build.Before
-		if before == "0000000000000000000000000000000000000000" || before == "" {
-			before = fmt.Sprintf("%s~1", req.Build.After)
+		// Support for multibranch pushing - use diff between main branch and new branch to get changed files 
+		before := fmt.Sprintf("%s", req.Repo.Branch)
+		after  := fmt.Sprintf("%s", req.Build.Source)
+		
+		// Support for master branch pushing
+		if before == after {
+			before = req.Build.Before
+			after  = req.Build.After
+			// Use case - master branch push & first commit
+			if before == "0000000000000000000000000000000000000000" || before == "" {
+				before = fmt.Sprintf("%s~1", req.Build.After)
+			}
 		}
+
 		var err error
-		changedFiles, err = req.Client.ChangedFilesInDiff(ctx, before, req.Build.After)
+		changedFiles, err = req.Client.ChangedFilesInDiff(ctx, before, after)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff: '%v'", req.UUID, err)
 			return nil, err

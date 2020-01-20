@@ -27,10 +27,12 @@ func TestPlugin(t *testing.T) {
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
 			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
 		},
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
+			Branch:	   "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
@@ -60,10 +62,12 @@ func TestConcat(t *testing.T) {
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
 			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
 		},
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
+			Branch:	   "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
@@ -161,10 +165,12 @@ func TestMatchEnable(t *testing.T) {
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
 			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
 		},
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
+			Branch:	   "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
