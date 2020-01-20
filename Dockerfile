@@ -11,7 +11,6 @@ ENV CGO_ENABLED=0 \
 
 RUN true \
   && go mod tidy \
-  && go test ./plugin \
   && go build -o drone-tree-config github.com/bitsbeats/drone-tree-config/cmd/drone-tree-config \
   && strip drone-tree-config
 
