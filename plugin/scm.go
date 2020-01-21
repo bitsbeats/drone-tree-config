@@ -54,11 +54,12 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 		
 		// Support for master branch pushing
 		if before == after {
-			before = req.Build.Before
-			after  = req.Build.After
 			// Use case - master branch push & first commit
 			if before == "0000000000000000000000000000000000000000" || before == "" {
 				before = fmt.Sprintf("%s~1", req.Build.After)
+			} else {
+				before = req.Build.Before
+				after  = req.Build.After
 			}
 		}
 
