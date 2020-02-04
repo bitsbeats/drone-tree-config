@@ -49,12 +49,23 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 		}
 	} else {
 		// use diff to get changed files
+		repoBranch := req.Repo.Branch
+		commitBranch := req.Build.Source
 		before := req.Build.Before
-		if before == "0000000000000000000000000000000000000000" || before == "" {
-			before = fmt.Sprintf("%s~1", req.Build.After)
+		after := req.Build.After
+
+		// check for branch pr
+		if commitBranch != repoBranch {
+			before = repoBranch
 		}
+
+		// check for broken before
+		if before == "0000000000000000000000000000000000000000" || before == "" {
+			before = fmt.Sprintf("%s~1", before)
+		}
+
 		var err error
-		changedFiles, err = req.Client.ChangedFilesInDiff(ctx, before, req.Build.After)
+		changedFiles, err = req.Client.ChangedFilesInDiff(ctx, before, after)
 		if err != nil {
 			logrus.Errorf("%s unable to fetch diff: '%v'", req.UUID, err)
 			return nil, err
