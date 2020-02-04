@@ -32,7 +32,7 @@ func TestPlugin(t *testing.T) {
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
-			Branch:	   "master",
+			Branch:    "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
@@ -67,7 +67,7 @@ func TestConcat(t *testing.T) {
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
-			Branch:	   "master",
+			Branch:    "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
@@ -170,7 +170,7 @@ func TestMatchEnable(t *testing.T) {
 		Repo: drone.Repo{
 			Namespace: "foosinn",
 			Name:      "dronetest",
-			Branch:	   "master",
+			Branch:    "master",
 			Slug:      "foosinn/dronetest",
 			Config:    ".drone.yml",
 		},
