@@ -2,7 +2,7 @@
   "name": ".drone.yml",
   "path": "a/b/.drone.yml",
   "sha": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
-  "size": 175,
+  "size": 179,
   "type": "file",
   "content": "a2luZDogcGlwZWxpbmUKbmFtZTogZGVmYXVsdAoKc3RlcHM6Ci0gbmFtZTogYnVpbGQKICBpbWFnZTogZ29sYW5nCiAgY29tbWFuZHM6CiAgLSBnbyBidWlsZAogIC0gZ28gdGVzdCAtc2hvcnQKCi0gbmFtZTogaW50ZWdyYXRpb24KICBpbWFnZTogZ29sYW5nCiAgY29tbWFuZHM6CiAgLSBnbyB0ZXN0IC12Cg==",
   "encoding": "base64"

@@ -18,6 +18,8 @@ func (p *Plugin) NewScmClient(ctx context.Context, uuid uuid.UUID, repo drone.Re
 	switch {
 	case p.gitHubToken != "":
 		scmClient, err = scm_clients.NewGitHubClient(ctx, uuid, p.server, p.gitHubToken, repo)
+	case p.gitLabToken != "":
+		scmClient, err = scm_clients.NewGitLabClient(ctx, uuid, p.server, p.gitLabToken, repo)
 	case p.bitBucketClient != "":
 		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.bitBucketAuthServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
 	default:

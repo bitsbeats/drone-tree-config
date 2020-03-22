@@ -14,6 +14,13 @@ func WithGithubToken(gitHubToken string) func(*Plugin) {
 	}
 }
 
+// WithGitlabToken configures with the gitlab token specified
+func WithGitlabToken(gitLabToken string) func(*Plugin) {
+	return func(p *Plugin) {
+		p.gitLabToken = gitLabToken
+	}
+}
+
 // WithBitBucketAuthServer configures an auth server
 func WithBitBucketAuthServer(bitBucketAuthServer string) func(*Plugin) {
 	return func(p *Plugin) {
