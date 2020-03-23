@@ -19,7 +19,7 @@ func (p *Plugin) NewScmClient(ctx context.Context, uuid uuid.UUID, repo drone.Re
 	case p.gitHubToken != "":
 		scmClient, err = scm_clients.NewGitHubClient(ctx, uuid, p.server, p.gitHubToken, repo)
 	case p.gitLabToken != "":
-		scmClient, err = scm_clients.NewGitLabClient(ctx, uuid, p.server, p.gitLabToken, repo)
+		scmClient, err = scm_clients.NewGitLabClient(ctx, uuid, p.gitLabServer, p.gitLabToken, repo)
 	case p.bitBucketClient != "":
 		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.bitBucketAuthServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
 	default:
@@ -63,7 +63,7 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 
 		// check for broken before
 		if before == "0000000000000000000000000000000000000000" || before == "" {
-			before = fmt.Sprintf("%s~1", before)
+			before = fmt.Sprintf("%s~1", after)
 		}
 
 		var err error

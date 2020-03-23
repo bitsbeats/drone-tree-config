@@ -61,14 +61,14 @@ func TestGitlabClient_GetFileListing(t *testing.T) {
 }
 
 func createGitlabClient(server string) (ScmClient, error) {
-	someUuid := uuid.New()
+	someUUID := uuid.New()
 	repo := drone.Repo{
-		ID:        1234,
+		UID:       "1234",
 		Namespace: "foosinn",
 		Name:      "dronetest",
 		Slug:      "foosinn/dronetest",
 	}
-	return NewGitLabClient(noContext, someUuid, server, mockGitlabToken, repo)
+	return NewGitLabClient(noContext, someUUID, server, mockGitlabToken, repo)
 }
 
 func testMuxGitlab() *http.ServeMux {

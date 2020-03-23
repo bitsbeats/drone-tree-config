@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/google/uuid"
@@ -46,7 +47,7 @@ func (s GitlabClient) ChangedFilesInPullRequest(ctx context.Context, pullRequest
 
 func (s GitlabClient) ChangedFilesInDiff(ctx context.Context, base string, head string) ([]string, error) {
 	var changedFiles []string
-	changes, _, err := s.compareCommits(base, head)
+	changes, _, err := s.compareCommits(base, head, true)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,6 @@ func (s GitlabClient) GetFileContents(ctx context.Context, path string, commitRe
 	if data == nil {
 		err = fmt.Errorf("failed to get %s: is not a file", path)
 	}
-	fmt.Println(data)
 	if err != nil {
 		return "", err
 	}
@@ -100,16 +100,17 @@ func (s GitlabClient) GetFileListing(ctx context.Context, path string, commitRef
 }
 
 func (s GitlabClient) listFiles(id int) (*gitlab.MergeRequest, *gitlab.Response, error) {
-	return s.delegate.MergeRequests.GetMergeRequestChanges(int(s.repo.ID), id)
+	return s.delegate.MergeRequests.GetMergeRequestChanges(s.repo.UID, id)
 }
 
-func (s GitlabClient) compareCommits(base, head string) (
+func (s GitlabClient) compareCommits(base, head string, straight bool) (
 	*gitlab.Compare, *gitlab.Response, error) {
 	opts := &gitlab.CompareOptions{
-		From: &base,
-		To:   &head,
+		From:     &base,
+		To:       &head,
+		Straight: &straight,
 	}
-	return s.delegate.Repositories.Compare(int(s.repo.ID), opts)
+	return s.delegate.Repositories.Compare(s.repo.UID, opts)
 }
 
 func (s GitlabClient) getTree(ctx context.Context, path string, commitRef string) (
@@ -118,18 +119,16 @@ func (s GitlabClient) getTree(ctx context.Context, path string, commitRef string
 		Path: &path,
 		Ref:  &commitRef,
 	}
-	t, _, e := s.delegate.Repositories.ListTree(int(s.repo.ID), opts)
-
-	fmt.Println(t)
-	return t, nil, e
+	return s.delegate.Repositories.ListTree(s.repo.UID, opts)
 }
 
 func (s GitlabClient) getContents(ctx context.Context, path string, commitRef string) (
 	fileContent *gitlab.File, resp *gitlab.Response, err error) {
+	filteredPath := strings.TrimPrefix(path, "/")
 	opts := &gitlab.GetFileOptions{
 		Ref: &commitRef,
 	}
-	return s.delegate.RepositoryFiles.GetFile(int(s.repo.ID), path, opts)
+	return s.delegate.RepositoryFiles.GetFile(s.repo.UID, filteredPath, opts)
 }
 
 func (s GitlabClient) decode(file *gitlab.File) (string, error) {
