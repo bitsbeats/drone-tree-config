@@ -63,7 +63,7 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 
 		// check for broken before
 		if before == "0000000000000000000000000000000000000000" || before == "" {
-			before = "master"
+			before = fmt.Sprintf("%s~1", after)
 		}
 
 		var err error
