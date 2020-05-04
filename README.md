@@ -28,7 +28,7 @@ Currently supports
 
 Backend specific options
 
-- `SERVER`: Custom SCM server
+- `SERVER`: Custom SCM server (also used by Gitlab / Bitbucket)
 - GitHub:
   - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
 - GitLab:
