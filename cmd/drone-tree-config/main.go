@@ -19,8 +19,10 @@ type (
 		WhitelistFile       string `envconfig:"PLUGIN_WHITELIST_FILE"`
 		Address             string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret              string `envconfig:"PLUGIN_SECRET"`
-		GitHubToken         string `envconfig:"GITHUB_TOKEN"`
 		Server              string `envconfig:"SERVER" default:"https://api.github.com"`
+		GitHubToken         string `envconfig:"GITHUB_TOKEN"`
+		GitLabToken         string `envconfig:"GITLAB_TOKEN"`
+		GitLabServer        string `envconfig:"GITLAB_SERVER" default:"https://gitlab.com"`
 		BitBucketAuthServer string `envconfig:"BITBUCKET_AUTH_SERVER"`
 		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
@@ -39,7 +41,7 @@ func main() {
 	if spec.Secret == "" {
 		logrus.Fatalln("missing secret key")
 	}
-	if spec.GitHubToken == "" && (spec.BitBucketClient == "" || spec.BitBucketSecret == "") {
+	if spec.GitHubToken == "" && spec.GitLabToken == "" && (spec.BitBucketClient == "" || spec.BitBucketSecret == "") {
 		logrus.Warnln("missing SCM credentials, e.g. GitHub token")
 	}
 	if spec.Address == "" {
@@ -51,15 +53,17 @@ func main() {
 
 	handler := config.Handler(
 		plugin.New(
-			plugin.WithBitBucketAuthServer(spec.BitBucketAuthServer),
-			plugin.WithBitBucketClient(spec.BitBucketClient),
-			plugin.WithBitBucketSecret(spec.BitBucketSecret),
 			plugin.WithConcat(spec.Concat),
 			plugin.WithFallback(spec.Fallback),
-			plugin.WithGithubToken(spec.GitHubToken),
 			plugin.WithMaxDepth(spec.MaxDepth),
 			plugin.WithServer(spec.Server),
 			plugin.WithWhitelistFile(spec.WhitelistFile),
+			plugin.WithBitBucketAuthServer(spec.BitBucketAuthServer),
+			plugin.WithBitBucketClient(spec.BitBucketClient),
+			plugin.WithBitBucketSecret(spec.BitBucketSecret),
+			plugin.WithGithubToken(spec.GitHubToken),
+			plugin.WithGitlabToken(spec.GitLabToken),
+			plugin.WithGitlabServer(spec.GitLabServer),
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

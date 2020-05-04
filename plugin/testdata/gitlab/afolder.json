@@ -1,0 +1,16 @@
+[
+  {
+    "id": "a1e8f8d745cc87e3a9248358d9352bb7f9a0aeba",
+    "name": ".drone.yml",
+    "type": "blob",
+    "path": "afolder/.drone.yml",
+    "mode": "040000"
+  },
+  {
+    "id": "4535904260b1082e14f867f7a24fd8c21495bde3",
+    "name": "abfolder",
+    "type": "tree",
+    "path": "afolder/abfolder",
+    "mode": "040000"
+  }
+]

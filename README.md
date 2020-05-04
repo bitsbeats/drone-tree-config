@@ -11,6 +11,7 @@ There is an official Docker image: https://hub.docker.com/r/bitsbeats/drone-tree
 Currently supports 
 
 * Github
+* Gitlab
 * Bitbucket [#4](https://github.com/bitsbeats/drone-tree-config/pull/4)
 
 ## Usage
@@ -30,6 +31,8 @@ Backend specific options
 - `SERVER`: Custom SCM server
 - GitHub:
   - `GITHUB_TOKEN`: Github personal access token. Only needs repo rights. See [here][1].
+- GitLab:
+  - `GITLAB_TOKEN`: Gitlab personal access token. Only needs `read_repository` rights. See [here][2]
 - Bitbucket
   - `BITBUCKET_AUTH_SERVER`: Custom auth server (uses SERVER if empty)
   - `BITBUCKET_CLIENT`: Credentials for Bitbucket access
@@ -85,7 +88,7 @@ Edit the Secrets (`***`), `<SECRET>` and `<GITHUB_TOKEN>` to your needs. `<SECRE
 By default this plugin matches against ALL repo slugs. If you want to enable the plugin for specific repos only, turn on
 regex matching by specifying a `PLUGIN_WHITELIST_FILE`.
 
-* Regex match rules must comply with [re2][2] syntax.
+* Regex match rules must comply with [re2][3] syntax.
 * Each line is a single rule.
 * Empty lines are ignored.
 * Lines which start with `#` are treated as comments (ignored).
@@ -118,4 +121,5 @@ File: drone-tree-config-matchfile:
 * Matches against `myorg/myrepo`
 
 [1]: https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line
-[2]: https://github.com/google/re2/wiki/Syntax
+[2]: https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html
+[3]: https://github.com/google/re2/wiki/Syntax

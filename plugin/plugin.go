@@ -18,6 +18,8 @@ type (
 	Plugin struct {
 		server              string
 		gitHubToken         string
+		gitLabToken         string
+		gitLabServer        string
 		bitBucketAuthServer string
 		bitBucketClient     string
 		bitBucketSecret     string
