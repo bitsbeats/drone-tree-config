@@ -1,0 +1,44 @@
+# github.com/99designs/httpsignatures-go v0.0.0-20170731043157-88528bf4ca7e
+github.com/99designs/httpsignatures-go
+# github.com/drone/drone-go v1.0.4
+github.com/drone/drone-go/drone
+github.com/drone/drone-go/plugin/config
+github.com/drone/drone-go/plugin/internal/aesgcm
+github.com/drone/drone-go/plugin/internal/client
+github.com/drone/drone-go/plugin/logger
+# github.com/golang/protobuf v1.2.0
+github.com/golang/protobuf/proto
+# github.com/google/go-github v17.0.0+incompatible
+github.com/google/go-github/github
+# github.com/google/go-querystring v1.0.0
+github.com/google/go-querystring/query
+# github.com/google/uuid v1.1.1
+github.com/google/uuid
+# github.com/kelseyhightower/envconfig v1.3.0
+github.com/kelseyhightower/envconfig
+# github.com/konsorten/go-windows-terminal-sequences v1.0.1
+github.com/konsorten/go-windows-terminal-sequences
+# github.com/sirupsen/logrus v1.4.1
+github.com/sirupsen/logrus
+# github.com/wbrefvem/go-bitbucket v0.0.0-20190128183802-fc08fd046abb
+github.com/wbrefvem/go-bitbucket
+# github.com/xanzy/go-gitlab v0.28.0
+github.com/xanzy/go-gitlab
+# golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
+golang.org/x/net/context
+golang.org/x/net/context/ctxhttp
+# golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
+golang.org/x/oauth2
+golang.org/x/oauth2/internal
+# golang.org/x/sys v0.0.0-20190412213103-97732733099d
+golang.org/x/sys/unix
+# google.golang.org/appengine v1.4.0
+google.golang.org/appengine/internal
+google.golang.org/appengine/internal/base
+google.golang.org/appengine/internal/datastore
+google.golang.org/appengine/internal/log
+google.golang.org/appengine/internal/remote_api
+google.golang.org/appengine/internal/urlfetch
+google.golang.org/appengine/urlfetch
+# gopkg.in/yaml.v2 v2.2.2
+gopkg.in/yaml.v2
