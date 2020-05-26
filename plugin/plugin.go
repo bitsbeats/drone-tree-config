@@ -99,13 +99,14 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	}
 
 	// cleanup
-	configData = strings.ReplaceAll(configData, "...", "")
+	configData = string(removeDocEndRegex.ReplaceAllString(configData, ""))
 	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
 
 	return &drone.Config{Data: configData}, nil
 }
 
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
+var removeDocEndRegex = regexp.MustCompile(`(?ms)^(\.\.\.)$`)
 
 // droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
 // see https://docs.drone.io/user-guide/pipeline/multi-machine/
