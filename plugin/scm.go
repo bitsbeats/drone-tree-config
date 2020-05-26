@@ -57,7 +57,7 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 		after := req.Build.After
 
 		// check for branch pr
-		if commitBranch != repoBranch {
+		if strings.HasPrefix(req.Build.Ref, "refs/pull/") && commitBranch != repoBranch {
 			before = repoBranch
 		}
 
