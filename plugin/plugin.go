@@ -84,10 +84,10 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		configData, err = p.getConfigForChanges(ctx, &req, changedFiles)
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
-		configData, err = p.getConfigForTree(ctx, &req, "/", 0)
+		configData, err = p.getConfigForTree(ctx, &req, "", 0)
 	} else if p.fallback {
 		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
-		configData, err = p.getConfigForTree(ctx, &req, "/", 0)
+		configData, err = p.getConfigForTree(ctx, &req, "", 0)
 	}
 	if err != nil {
 		return nil, err
