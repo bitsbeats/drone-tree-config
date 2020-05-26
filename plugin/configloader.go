@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"path"
-	"strings"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -15,14 +14,8 @@ func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedF
 	configData = ""
 	cache := map[string]bool{}
 	for _, file := range changedFiles {
-		if !strings.HasPrefix(file, "/") {
-			file = "/" + file
-		}
-
-		done := false
 		dir := file
-		for !done {
-			done = bool(dir == "/")
+		for dir != "." {
 			dir = path.Join(dir, "..")
 			file := path.Join(dir, req.Repo.Config)
 
