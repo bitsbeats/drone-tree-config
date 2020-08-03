@@ -65,7 +65,10 @@ func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string,
 	for _, f := range ls {
 		var fileContent string
 		if f.Type == "dir" {
-			fileContent, _ = p.getConfigForTree(ctx, req, f.Path, depth)
+			fileContent, err = p.getConfigForTree(ctx, req, f.Path, depth)
+			if err != nil {
+				return "", err
+			}
 		} else if f.Type == "file" && f.Name == req.Repo.Config {
 			var critical bool
 			fileContent, critical, err = p.getDroneConfig(ctx, req, f.Path)
