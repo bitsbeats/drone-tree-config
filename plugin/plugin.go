@@ -27,7 +27,7 @@ type (
 		concat        bool
 		fallback      bool
 		maxDepth      int
-		whitelistFile string
+		allowListFile string
 	}
 
 	droneConfig struct {
@@ -67,7 +67,7 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 	req := request{droneRequest, someUuid, client}
 
 	// make sure this plugin is enabled for the requested repo slug
-	if ok := p.whitelisted(&req); !ok {
+	if ok := p.allowlisted(&req); !ok {
 		// do the default behavior by returning nil, nil
 		return nil, nil
 	}
