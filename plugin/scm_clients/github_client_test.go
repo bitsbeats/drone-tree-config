@@ -1,21 +1,28 @@
 package scm_clients
 
 import (
-	"github.com/drone/drone-go/drone"
-	"github.com/google/uuid"
-	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
+
+	"github.com/drone/drone-go/drone"
+	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 )
 
 const mockGithubToken = "7535706b694c63526c6e4f5230374243"
 
-func TestGithubClient_GetFileContents(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
+var ts *httptest.Server
+
+func TestMain(m *testing.M) {
+	ts = httptest.NewServer(testMuxGithub())
 	defer ts.Close()
+	os.Exit(m.Run())
+}
+
+func TestGithubClient_GetFileContents(t *testing.T) {
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -25,8 +32,6 @@ func TestGithubClient_GetFileContents(t *testing.T) {
 }
 
 func TestGithubClient_ChangedFilesInDiff(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -36,8 +41,6 @@ func TestGithubClient_ChangedFilesInDiff(t *testing.T) {
 }
 
 func TestGithubClient_ChangedFilesInPullRequest(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -48,8 +51,6 @@ func TestGithubClient_ChangedFilesInPullRequest(t *testing.T) {
 }
 
 func TestGithubClient_GetFileListing(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
