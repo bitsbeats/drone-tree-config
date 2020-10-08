@@ -82,3 +82,11 @@ func WithAllowListFile(file string) func(*Plugin) {
 		p.allowListFile = file
 	}
 }
+
+// WithConsiderFile configures with a consider file which contains references to all 'drone.yml' files which should
+// be considered for the repository.
+func WithConsiderFile(considerFile string) func(*Plugin) {
+	return func(p *Plugin) {
+		p.considerFile = considerFile
+	}
+}

@@ -28,6 +28,7 @@ type (
 		fallback      bool
 		maxDepth      int
 		allowListFile string
+		considerFile  string
 	}
 
 	droneConfig struct {
@@ -72,37 +73,59 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		return nil, nil
 	}
 
-	// get changed files
-	changedFiles, err := p.getScmChanges(ctx, &req)
+	configData, err := p.getConfig(ctx, &req)
 	if err != nil {
 		return nil, err
+	}
+	return &drone.Config{Data: configData}, nil
+}
+
+// getConfig retrieves drone config data from the repo
+func (p *Plugin) getConfig(ctx context.Context, req *request) (string, error) {
+	// get changed files
+	changedFiles, err := p.getScmChanges(ctx, req)
+	if err != nil {
+		return "", err
 	}
 
 	// get drone.yml for changed files or all of them if no changes/cron
 	configData := ""
 	if changedFiles != nil {
-		configData, err = p.getConfigForChanges(ctx, &req, changedFiles)
+		if p.considerFile != "" {
+			configData, err = p.getConfigForChangesUsingConsider(ctx, req, changedFiles)
+		} else {
+			configData, err = p.getConfigForChanges(ctx, req, changedFiles)
+		}
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
-		configData, err = p.getConfigForTree(ctx, &req, "", 0)
+		if p.considerFile != "" {
+			configData, err = p.getConfigForTreeUsingConsider(ctx, req)
+		} else {
+			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
+			configData, err = p.getConfigForTree(ctx, req, "", 0)
+		}
 	} else if p.fallback {
 		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
-		configData, err = p.getConfigForTree(ctx, &req, "", 0)
+		if p.considerFile != "" {
+			configData, err = p.getConfigForTreeUsingConsider(ctx, req)
+		} else {
+			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
+			configData, err = p.getConfigForTree(ctx, req, "", 0)
+		}
 	}
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	// no file found
 	if configData == "" {
-		return nil, errors.New("did not find a .drone.yml")
+		return "", errors.New("did not find a .drone.yml")
 	}
 
 	// cleanup
-	configData = string(removeDocEndRegex.ReplaceAllString(configData, ""))
+	configData = removeDocEndRegex.ReplaceAllString(configData, "")
 	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
-
-	return &drone.Config{Data: configData}, nil
+	return configData, nil
 }
 
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
