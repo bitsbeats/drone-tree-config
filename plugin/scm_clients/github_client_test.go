@@ -1,6 +1,7 @@
 package scm_clients
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
