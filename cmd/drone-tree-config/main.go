@@ -12,11 +12,11 @@ import (
 
 type (
 	spec struct {
+		AllowListFile       string `envconfig:"PLUGIN_ALLOW_LIST_FILE"`
 		Concat              bool   `envconfig:"PLUGIN_CONCAT"`
 		MaxDepth            int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		Fallback            bool   `envconfig:"PLUGIN_FALLBACK"`
 		Debug               bool   `envconfig:"PLUGIN_DEBUG"`
-		WhitelistFile       string `envconfig:"PLUGIN_WHITELIST_FILE"`
 		Address             string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret              string `envconfig:"PLUGIN_SECRET"`
 		Server              string `envconfig:"SERVER" default:"https://api.github.com"`
@@ -26,6 +26,8 @@ type (
 		BitBucketAuthServer string `envconfig:"BITBUCKET_AUTH_SERVER"`
 		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
+		// Deprecated: Use AllowListFile instead.
+		WhitelistFile string `envconfig:"PLUGIN_WHITELIST_FILE"`
 	}
 )
 
@@ -50,6 +52,10 @@ func main() {
 	if spec.BitBucketAuthServer == "" {
 		spec.BitBucketAuthServer = spec.Server
 	}
+	// TODO :: Remove this check, once the deprecation is deleted
+	if spec.AllowListFile == "" && spec.WhitelistFile != "" {
+		spec.AllowListFile = spec.WhitelistFile
+	}
 
 	handler := config.Handler(
 		plugin.New(
@@ -57,7 +63,7 @@ func main() {
 			plugin.WithFallback(spec.Fallback),
 			plugin.WithMaxDepth(spec.MaxDepth),
 			plugin.WithServer(spec.Server),
-			plugin.WithWhitelistFile(spec.WhitelistFile),
+			plugin.WithAllowListFile(spec.AllowListFile),
 			plugin.WithBitBucketAuthServer(spec.BitBucketAuthServer),
 			plugin.WithBitBucketClient(spec.BitBucketClient),
 			plugin.WithBitBucketSecret(spec.BitBucketSecret),

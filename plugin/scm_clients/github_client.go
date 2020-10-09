@@ -64,13 +64,22 @@ func getClientDelegate(ctx context.Context, server string, token string) (*githu
 
 func (s GithubClient) ChangedFilesInPullRequest(ctx context.Context, pullRequestID int) ([]string, error) {
 	var changedFiles []string
-	files, _, err := s.listFiles(ctx, pullRequestID)
-	if err != nil {
-		return nil, err
+	opts := &github.ListOptions{}
+
+	for {
+		files, resp, err := s.listFiles(ctx, pullRequestID, opts)
+		if err != nil {
+			return nil, err
+		}
+		for _, file := range files {
+			changedFiles = append(changedFiles, *file.Filename)
+		}
+		if resp.NextPage == 0 {
+			break
+		}
+		opts.Page = resp.NextPage
 	}
-	for _, file := range files {
-		changedFiles = append(changedFiles, *file.Filename)
-	}
+
 	return changedFiles, nil
 }
 
@@ -117,9 +126,8 @@ func (s GithubClient) GetFileListing(ctx context.Context, path string, commitRef
 	return result, err
 }
 
-func (s GithubClient) listFiles(ctx context.Context, number int) (
+func (s GithubClient) listFiles(ctx context.Context, number int, opts *github.ListOptions) (
 	[]*github.CommitFile, *github.Response, error) {
-	opts := &github.ListOptions{}
 	return s.delegate.PullRequests.ListFiles(ctx, s.repo.Namespace, s.repo.Name, number, opts)
 }
 

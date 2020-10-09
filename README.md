@@ -8,7 +8,7 @@ There is an official Docker image: https://hub.docker.com/r/bitsbeats/drone-tree
 
 ## Limitations
 
-Currently supports 
+Currently supports
 
 * Github
 * Gitlab
@@ -24,7 +24,7 @@ Currently supports
 - `PLUGIN_DEBUG`: Set this to `true` to enable debug messages.
 - `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 - `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
-- `PLUGIN_WHITELIST_FILE`: (Optional) Path to regex pattern file. Matches the repo slug(s) against a list of regex patterns. Defaults to `""`, match everything
+- `PLUGIN_ALLOW_LIST_FILE`: (Optional) Path to regex pattern file. Matches the repo slug(s) against a list of regex patterns. Defaults to `""`, match everything.
 
 Backend specific options
 
@@ -83,10 +83,10 @@ services:
 
 Edit the Secrets (`***`), `<SECRET>` and `<GITHUB_TOKEN>` to your needs. `<SECRET>` is used between Drone and drone-tree-config.
 
-#### Whitelisting repos with regex matching:
+#### Enable repos via regex matching:
 
-By default this plugin matches against ALL repo slugs. If you want to enable the plugin for specific repos only, turn on
-regex matching by specifying a `PLUGIN_WHITELIST_FILE`.
+By default, this plugin matches against ALL repo slugs. If you want to enable the plugin for specific repos only, turn on
+regex matching by specifying a `PLUGIN_ALLOW_LIST_FILE`.
 
 * Regex match rules must comply with [re2][3] syntax.
 * Each line is a single rule.
@@ -104,7 +104,7 @@ Updated docker-compose:
       - PLUGIN_FALLBACK=true
       - PLUGIN_SECRET=<SECRET>
       - GITHUB_TOKEN=<GITHUB_TOKEN>
-      - PLUGIN_WHITELIST_FILE=/drone-tree-config-matchfile
+      - PLUGIN_ALLOW_LIST_FILE=/drone-tree-config-matchfile
     restart: always
     volumes:
       - /var/lib/drone/drone-tree-config-matchfile:/drone-tree-config-matchfile

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"reflect"
 	"testing"
 
 	"github.com/drone/drone-go/drone"
@@ -48,6 +49,31 @@ func TestGithubClient_ChangedFilesInPullRequest(t *testing.T) {
 	}
 
 	BaseTest_ChangedFilesInPullRequest(t, client)
+}
+
+func TestGithubClient_ChangedFilesInPullRequest_Paginated(t *testing.T) {
+	ts := httptest.NewServer(testMuxGithub())
+	defer ts.Close()
+	client, err := createGithubClient(ts.URL)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	actualFiles, err := client.ChangedFilesInPullRequest(noContext, 4)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	expectedFiles := []string{
+		"e/f/g/h/.drone.yml",
+		"e/f/g/h/.drone.yml",
+	}
+
+	if want, got := expectedFiles, actualFiles; !reflect.DeepEqual(want, got) {
+		t.Errorf("Test failed:\n  want %q\n   got %q", want, got)
+	}
 }
 
 func TestGithubClient_GetFileListing(t *testing.T) {
@@ -94,6 +120,17 @@ func testMuxGithub() *http.ServeMux {
 		})
 	mux.HandleFunc("/repos/foosinn/dronetest/pulls/3/files",
 		func(w http.ResponseWriter, r *http.Request) {
+			f, _ := os.Open("../testdata/github/pull_3_files.json")
+			_, _ = io.Copy(w, f)
+		})
+	mux.HandleFunc("/repos/foosinn/dronetest/pulls/4/files",
+		func(w http.ResponseWriter, r *http.Request) {
+			// simulate a paginated response
+			if r.FormValue("page") == "" {
+				next := fmt.Sprintf("<%s?page=2>; rel=\"next\"", r.URL.String())
+				last := fmt.Sprintf("<%s?page=2>; rel=\"last\"", r.URL.String())
+				w.Header().Add("Link", fmt.Sprintf("%s, %s", next, last))
+			}
 			f, _ := os.Open("../testdata/github/pull_3_files.json")
 			_, _ = io.Copy(w, f)
 		})
