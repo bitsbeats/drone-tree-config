@@ -18,11 +18,16 @@ var noContext = context.Background()
 
 const mockToken = "7535706b694c63526c6e4f5230374243"
 
+var ts *httptest.Server
+
+func TestMain(m *testing.M) {
+	ts = httptest.NewServer(testMux())
+	defer ts.Close()
+	os.Exit(m.Run())
+}
+
 // test commit
 func TestPlugin(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
@@ -55,9 +60,6 @@ func TestPlugin(t *testing.T) {
 }
 
 func TestConcat(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
@@ -91,9 +93,6 @@ func TestConcat(t *testing.T) {
 }
 
 func TestPullRequest(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			Fork: "octocat/dronetest",
@@ -125,9 +124,6 @@ func TestPullRequest(t *testing.T) {
 }
 
 func TestCron(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			After:   "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
@@ -158,9 +154,6 @@ func TestCron(t *testing.T) {
 }
 
 func TestMatchEnable(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
@@ -237,9 +230,6 @@ func TestMatchEnable(t *testing.T) {
 }
 
 func TestCronConcat(t *testing.T) {
-	ts := httptest.NewServer(testMux())
-	defer ts.Close()
-
 	req := &config.Request{
 		Build: drone.Build{
 			After:   "8ecad91991d5da985a2a8dd97cc19029dc1c2899",

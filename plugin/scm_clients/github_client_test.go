@@ -1,7 +1,6 @@
 package scm_clients
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -16,9 +15,15 @@ import (
 
 const mockGithubToken = "7535706b694c63526c6e4f5230374243"
 
-func TestGithubClient_GetFileContents(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
+var ts *httptest.Server
+
+func TestMain(m *testing.M) {
+	ts = httptest.NewServer(testMuxGithub())
 	defer ts.Close()
+	os.Exit(m.Run())
+}
+
+func TestGithubClient_GetFileContents(t *testing.T) {
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -28,8 +33,6 @@ func TestGithubClient_GetFileContents(t *testing.T) {
 }
 
 func TestGithubClient_ChangedFilesInDiff(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -39,8 +42,6 @@ func TestGithubClient_ChangedFilesInDiff(t *testing.T) {
 }
 
 func TestGithubClient_ChangedFilesInPullRequest(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)
@@ -76,8 +77,6 @@ func TestGithubClient_ChangedFilesInPullRequest_Paginated(t *testing.T) {
 }
 
 func TestGithubClient_GetFileListing(t *testing.T) {
-	ts := httptest.NewServer(testMuxGithub())
-	defer ts.Close()
 	client, err := createGithubClient(ts.URL)
 	if err != nil {
 		t.Error(err)

@@ -3,6 +3,7 @@ package scm_clients
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/google/go-github/github"
@@ -16,25 +17,49 @@ type GithubClient struct {
 	repo     drone.Repo
 }
 
+var (
+	lock sync.Mutex
+	ghClient *github.Client
+)
+
+// NewGitHubClient creates a GithubClient which can be used to send requests to the Github API
 func NewGitHubClient(ctx context.Context, uuid uuid.UUID, server string, token string, repo drone.Repo) (ScmClient, error) {
-	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
-		&oauth2.Token{AccessToken: token},
-	))
-	var client *github.Client
-	if server == "" {
-		client = github.NewClient(trans)
-	} else {
-		var err error
-		client, err = github.NewEnterpriseClient(server, server, trans)
-		if err != nil {
-			logrus.Errorf("%s Unable to connect to Github: '%v'", uuid, err)
-			return nil, err
-		}
+	client, err := getClientDelegate(ctx, server, token)
+	if err != nil {
+		logrus.Errorf("%s Unable to connect to Github: '%v'", uuid, err)
+		return nil, err
 	}
+
 	return GithubClient{
 		delegate: client,
 		repo:     repo,
 	}, nil
+}
+
+func getClientDelegate(ctx context.Context, server string, token string) (*github.Client, error) {
+	lock.Lock()
+	defer lock.Unlock()
+
+	// return pre-existing client delegate
+	if ghClient != nil {
+		return ghClient, nil
+	}
+
+	// create a new one
+	trans := oauth2.NewClient(ctx, oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	))
+	if server == "" {
+		ghClient = github.NewClient(trans)
+	} else {
+		var err error
+		ghClient, err = github.NewEnterpriseClient(server, server, trans)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return ghClient, nil
 }
 
 func (s GithubClient) ChangedFilesInPullRequest(ctx context.Context, pullRequestID int) ([]string, error) {
