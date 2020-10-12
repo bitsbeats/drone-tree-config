@@ -27,6 +27,11 @@ func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedF
 				cache[file] = true
 			}
 
+			// when enabled, only process drone.yml from p.considerFile
+			if p.considerFile != "" && !req.ConsiderData.consider(file) {
+				continue
+			}
+
 			// download file from git
 			fileContent, critical, err := p.getDroneConfig(ctx, req, file)
 			if err != nil {
@@ -49,6 +54,11 @@ func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedF
 
 // getConfigForTree searches for all or first 'drone.yml' in the repo
 func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string, depth int) (configData string, err error) {
+	if p.considerFile != "" {
+		// treats all 'drone.yml' entries in the consider file as the changedFiles
+		return p.getConfigForChanges(ctx, req, req.ConsiderData.listRepresentation)
+	}
+
 	ls, err := req.Client.GetFileListing(ctx, dir, req.Build.After)
 	if err != nil {
 		return "", err
