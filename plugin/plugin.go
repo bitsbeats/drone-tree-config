@@ -38,8 +38,9 @@ type (
 
 	request struct {
 		*config.Request
-		UUID   uuid.UUID
-		Client scm_clients.ScmClient
+		UUID         uuid.UUID
+		Client       scm_clients.ScmClient
+		ConsiderData *ConsiderData
 	}
 )
 
@@ -65,12 +66,21 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		return nil, err
 	}
 
-	req := request{droneRequest, someUuid, client}
+	req := request{
+		Request: droneRequest,
+		UUID:    someUuid,
+		Client:  client,
+	}
 
 	// make sure this plugin is enabled for the requested repo slug
 	if ok := p.allowlisted(&req); !ok {
 		// do the default behavior by returning nil, nil
 		return nil, nil
+	}
+
+	// load the considerFile entries, if configured for considerFile
+	if req.ConsiderData, err = p.newConsiderDataFromRequest(ctx, &req); err != nil {
+		return nil, err
 	}
 
 	configData, err := p.getConfig(ctx, &req)
@@ -91,27 +101,19 @@ func (p *Plugin) getConfig(ctx context.Context, req *request) (string, error) {
 	// get drone.yml for changed files or all of them if no changes/cron
 	configData := ""
 	if changedFiles != nil {
-		if p.considerFile != "" {
-			configData, err = p.getConfigForChangesUsingConsider(ctx, req, changedFiles)
-		} else {
-			configData, err = p.getConfigForChanges(ctx, req, changedFiles)
-		}
+		configData, err = p.getConfigForChanges(ctx, req, changedFiles)
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
-		if p.considerFile != "" {
-			configData, err = p.getConfigForTreeUsingConsider(ctx, req)
-		} else {
+		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
-			configData, err = p.getConfigForTree(ctx, req, "", 0)
 		}
+		configData, err = p.getConfigForTree(ctx, req, "", 0)
 	} else if p.fallback {
 		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
-		if p.considerFile != "" {
-			configData, err = p.getConfigForTreeUsingConsider(ctx, req)
-		} else {
+		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
-			configData, err = p.getConfigForTree(ctx, req, "", 0)
 		}
+		configData, err = p.getConfigForTree(ctx, req, "", 0)
 	}
 	if err != nil {
 		return "", err
