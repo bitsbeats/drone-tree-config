@@ -105,7 +105,7 @@ func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string,
 // getDroneConfig downloads a drone config and validates it
 func (p *Plugin) getDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
 	fileContent, err := p.getScmFile(ctx, req, file)
-	if err != nil {
+	if err != nil || fileContent == "" {
 		logrus.Debugf("%s skipping: unable to load file: %s %v", req.UUID, file, err)
 		return "", false, err
 	}
