@@ -6,6 +6,8 @@ github.com/drone/drone-go/plugin/config
 github.com/drone/drone-go/plugin/internal/aesgcm
 github.com/drone/drone-go/plugin/internal/client
 github.com/drone/drone-go/plugin/logger
+# github.com/gfleury/go-bitbucket-v1 v0.0.0-20200810125852-15f2a16ca820
+github.com/gfleury/go-bitbucket-v1
 # github.com/golang/protobuf v1.2.0
 github.com/golang/protobuf/proto
 # github.com/google/go-github v17.0.0+incompatible
@@ -18,6 +20,8 @@ github.com/google/uuid
 github.com/kelseyhightower/envconfig
 # github.com/konsorten/go-windows-terminal-sequences v1.0.1
 github.com/konsorten/go-windows-terminal-sequences
+# github.com/mitchellh/mapstructure v1.1.2
+github.com/mitchellh/mapstructure
 # github.com/sirupsen/logrus v1.4.1
 github.com/sirupsen/logrus
 # github.com/wbrefvem/go-bitbucket v0.0.0-20190128183802-fc08fd046abb
@@ -27,7 +31,7 @@ github.com/xanzy/go-gitlab
 # golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 golang.org/x/net/context
 golang.org/x/net/context/ctxhttp
-# golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
+# golang.org/x/oauth2 v0.0.0-20190604053449-0f29369cfe45
 golang.org/x/oauth2
 golang.org/x/oauth2/internal
 # golang.org/x/sys v0.0.0-20190412213103-97732733099d

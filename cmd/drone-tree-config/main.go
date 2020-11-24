@@ -27,6 +27,7 @@ type (
 		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
 		ConsiderFile        string `envconfig:"PLUGIN_CONSIDER_FILE"`
+		BitBucketServerToken string `envconfig:"BITBUCKET_SERVER_TOKEN"`
 		// Deprecated: Use AllowListFile instead.
 		WhitelistFile string `envconfig:"PLUGIN_WHITELIST_FILE"`
 	}
@@ -72,6 +73,7 @@ func main() {
 			plugin.WithGitlabToken(spec.GitLabToken),
 			plugin.WithGitlabServer(spec.GitLabServer),
 			plugin.WithConsiderFile(spec.ConsiderFile),
+			plugin.WithBitBucketServerToken(spec.BitBucketServerToken),
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

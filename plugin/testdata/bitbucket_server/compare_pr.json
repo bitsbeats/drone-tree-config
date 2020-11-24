@@ -1,0 +1,36 @@
+{
+  "fromHash": "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+  "toHash": "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+  "contextLines": 10,
+  "whitespace": "SHOW",
+  "diffs": [
+    {
+      "source": {
+        "components": [
+          "e",
+          "f",
+          "g",
+          "h",
+          ".drone.yml"
+        ],
+        "parent": "e/f/g/h",
+        "name": ".drone",
+        "extension": "yml",
+        "toString": "e/f/g/h/.drone.yml"
+      },
+      "destination": {
+        "components": [
+          "e",
+          "f",
+          "g",
+          "h",
+          ".drone.yml"
+        ],
+        "parent": "e/f/g/h",
+        "name": ".drone",
+        "extension": "yml",
+        "toString": "e/f/g/h/.drone.yml"
+      }
+    }
+  ]
+}

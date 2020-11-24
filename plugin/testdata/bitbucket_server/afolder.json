@@ -1,0 +1,11 @@
+{
+  "values": [
+    "afolder/.drone.yml",
+    "afolder/abfolder"
+  ],
+  "size": 25,
+  "isLastPage": false,
+  "start": 0,
+  "limit": 25,
+  "nextPageStart": 25
+}
