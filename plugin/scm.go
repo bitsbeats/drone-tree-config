@@ -22,6 +22,8 @@ func (p *Plugin) NewScmClient(ctx context.Context, uuid uuid.UUID, repo drone.Re
 		scmClient, err = scm_clients.NewGitLabClient(ctx, uuid, p.gitLabServer, p.gitLabToken, repo)
 	case p.bitBucketClient != "":
 		scmClient, err = scm_clients.NewBitBucketClient(uuid, p.bitBucketAuthServer, p.server, p.bitBucketClient, p.bitBucketSecret, repo)
+	case p.bitBucketServerToken != "":
+		scmClient, err = scm_clients.NewBitBucketServerClient(uuid, p.server, p.bitBucketServerToken, repo)
 	default:
 		err = fmt.Errorf("no SCM credentials specified")
 	}

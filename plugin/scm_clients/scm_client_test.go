@@ -2,10 +2,12 @@ package scm_clients
 
 import (
 	"context"
+	"gopkg.in/yaml.v2"
 	"reflect"
 	"strings"
 	"testing"
-)
+	"fmt"
+	)
 
 var noContext = context.Background()
 
@@ -17,7 +19,19 @@ func BaseTest_GetFileContents(t *testing.T, client ScmClient) {
 		return
 	}
 
-	if want, got := "kind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n", actualContent; want != got {
+	// Test that the actual YAML *data* is the same
+	var actualObj map[string]interface{}
+	var wantObj map[string]interface{}
+
+	wantString := "kind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n"
+
+	_ = yaml.Unmarshal([]byte(wantString), &wantObj)
+	_ = yaml.Unmarshal([]byte(actualContent), &actualObj)
+	want := fmt.Sprintf("%v", wantObj)
+	got := fmt.Sprintf("%v", actualObj)
+
+
+	if want != got {
 		t.Errorf("Test failed:\n  want %q\n   got %q", want, got)
 	}
 }

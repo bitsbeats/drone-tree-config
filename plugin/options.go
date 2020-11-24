@@ -90,3 +90,10 @@ func WithConsiderFile(considerFile string) func(*Plugin) {
 		p.considerFile = considerFile
 	}
 }
+
+// WithBitBucketServerToken configures access token for Bitbucket Server (formerly Stash)
+func WithBitBucketServerToken(token string) func(*Plugin) {
+	return func(p *Plugin) {
+		p.bitBucketServerToken = token
+	}
+}

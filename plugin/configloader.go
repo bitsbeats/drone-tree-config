@@ -3,7 +3,7 @@ package plugin
 import (
 	"context"
 	"path"
-
+	"strings"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
@@ -17,7 +17,12 @@ func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedF
 		dir := file
 		for dir != "." {
 			dir = path.Join(dir, "..")
-			file := path.Join(dir, req.Repo.Config)
+
+			// don't include req.Repo.Config path for drone config
+			// this leads to bad paths when .drone.yml is not in root path
+			fileSlice := strings.Split(req.Repo.Config, "/")
+			repoConfigFileName := fileSlice[len(fileSlice)-1]
+			file := path.Join(dir, repoConfigFileName)
 
 			// check if file has already been checked
 			_, ok := cache[file]
@@ -100,7 +105,7 @@ func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string,
 // getDroneConfig downloads a drone config and validates it
 func (p *Plugin) getDroneConfig(ctx context.Context, req *request, file string) (configData string, critical bool, err error) {
 	fileContent, err := p.getScmFile(ctx, req, file)
-	if err != nil {
+	if err != nil || fileContent == "" {
 		logrus.Debugf("%s skipping: unable to load file: %s %v", req.UUID, file, err)
 		return "", false, err
 	}
