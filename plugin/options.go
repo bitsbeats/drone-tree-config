@@ -70,12 +70,6 @@ func WithMaxDepth(maxDepth int) func(*Plugin) {
 	}
 }
 
-// WithWhitelistFile configures with repo slug regex match list file
-// Deprecated: Use WithAllowlistFile instead.
-func WithWhitelistFile(file string) func(*Plugin) {
-	return WithAllowListFile(file)
-}
-
 // WithAllowListFile configures with repo slug regex match list file
 func WithAllowListFile(file string) func(*Plugin) {
 	return func(p *Plugin) {

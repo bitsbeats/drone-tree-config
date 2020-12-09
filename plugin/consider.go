@@ -19,8 +19,6 @@ func (c *ConsiderData) consider(path string) bool {
 	return exists
 }
 
-// ------
-
 // newConsiderDataFromRequest returns the ConsiderData which is loaded from the considerFile
 func (p *Plugin) newConsiderDataFromRequest(ctx context.Context, req *request) (*ConsiderData, error) {
 	cd := new(ConsiderData)
