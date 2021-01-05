@@ -109,7 +109,7 @@ func (p *Plugin) getDroneConfig(ctx context.Context, req *request, file string) 
 	dc := droneConfig{}
 	err = yaml.Unmarshal([]byte(fileContent), &dc)
 	if err != nil {
-		logrus.Errorf("%s skipping: unable do parse yml file: %s %v", req.UUID, file, err)
+		logrus.Errorf("%s skipping: unable to parse yml file: %s %v", req.UUID, file, err)
 		return "", true, err
 	}
 	if dc.Name == "" || dc.Kind == "" {

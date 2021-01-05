@@ -27,8 +27,6 @@ type (
 		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
 		ConsiderFile        string `envconfig:"PLUGIN_CONSIDER_FILE"`
-		// Deprecated: Use AllowListFile instead.
-		WhitelistFile string `envconfig:"PLUGIN_WHITELIST_FILE"`
 	}
 )
 
@@ -52,10 +50,6 @@ func main() {
 	}
 	if spec.BitBucketAuthServer == "" {
 		spec.BitBucketAuthServer = spec.Server
-	}
-	// TODO :: Remove this check, once the deprecation is deleted
-	if spec.AllowListFile == "" && spec.WhitelistFile != "" {
-		spec.AllowListFile = spec.WhitelistFile
 	}
 
 	handler := config.Handler(
