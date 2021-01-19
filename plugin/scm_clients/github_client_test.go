@@ -99,32 +99,32 @@ func createGithubClient(server string) (ScmClient, error) {
 
 func testMuxGithub() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/root.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/compare/2897b31ec3a1b59279a08a8ad54dc360686327f7...8ecad91991d5da985a2a8dd97cc19029dc1c2899",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/compare.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/a/b/.drone.yml",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/a/b/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/a_b_.drone.yml.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/.drone.yml",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/.drone.yml.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/pulls/3/files",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/pulls/3/files",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/pull_3_files.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/pulls/4/files",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/pulls/4/files",
 		func(w http.ResponseWriter, r *http.Request) {
 			// simulate a paginated response
 			if r.FormValue("page") == "" {
@@ -135,12 +135,12 @@ func testMuxGithub() *http.ServeMux {
 			f, _ := os.Open("../testdata/github/pull_3_files.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder/.drone.yml",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/afolder/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/afolder_.drone.yml.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/repos/foosinn/dronetest/contents/afolder",
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/afolder",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/github/afolder.json")
 			_, _ = io.Copy(w, f)

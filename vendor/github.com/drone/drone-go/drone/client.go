@@ -30,6 +30,8 @@ const (
 	pathSelf             = "%s/api/user"
 	pathFeed             = "%s/api/user/feed"
 	pathRepos            = "%s/api/user/repos"
+	pathIncomplete       = "%s/api/builds/incomplete"
+	pathReposAll         = "%s/api/repos"
 	pathRepo             = "%s/api/repos/%s/%s"
 	pathRepoMove         = "%s/api/repos/%s/%s/move?to=%s"
 	pathChown            = "%s/api/repos/%s/%s/chown"
@@ -74,12 +76,16 @@ type client struct {
 
 type ListOptions struct {
 	Page int
+	Size int
 }
 
 func encodeListOptions(opts ListOptions) string {
 	params := url.Values{}
 	if opts.Page != 0 {
 		params.Set("page", strconv.Itoa(opts.Page))
+	}
+	if opts.Size != 0 {
+		params.Set("per_page", strconv.Itoa(opts.Size))
 	}
 	return params.Encode()
 }
@@ -151,6 +157,14 @@ func (c *client) UserDelete(login string) error {
 	return err
 }
 
+// Incomplete returns a list of incomplete builds.
+func (c *client) Incomplete() ([]*Repo, error) {
+	var out []*Repo
+	uri := fmt.Sprintf(pathIncomplete, c.addr)
+	err := c.get(uri, &out)
+	return out, err
+}
+
 // Repo returns a repository by name.
 func (c *client) Repo(owner string, name string) (*Repo, error) {
 	out := new(Repo)
@@ -174,6 +188,18 @@ func (c *client) RepoListSync() ([]*Repo, error) {
 	var out []*Repo
 	uri := fmt.Sprintf(pathRepos, c.addr)
 	err := c.post(uri, nil, &out)
+	return out, err
+}
+
+// RepoListAll returns a paginated list of all repositories
+// stored in the database.
+func (c *client) RepoListAll(opts ListOptions) ([]*Repo, error) {
+	var out []*Repo
+	uri := fmt.Sprintf(pathReposAll, c.addr)
+	if opt := encodeListOptions(opts); opt != "" {
+		uri = uri + "?" + opt
+	}
+	err := c.get(uri, &out)
 	return out, err
 }
 
@@ -246,6 +272,22 @@ func (c *client) BuildList(owner, name string, opts ListOptions) ([]*Build, erro
 	var out []*Build
 	uri := fmt.Sprintf(pathBuilds, c.addr, owner, name, encodeListOptions(opts))
 	err := c.get(uri, &out)
+	return out, err
+}
+
+// BuildCreate creates a new build by branch or commit.
+func (c *client) BuildCreate(owner, name, commit, branch string, params map[string]string) (*Build, error) {
+	out := new(Build)
+	val := mapValues(params)
+	if commit != "" {
+		val.Set("commit", commit)
+	}
+	if branch != "" {
+		val.Set("branch", branch)
+	}
+	uri := fmt.Sprintf(pathBuilds, c.addr, owner, name, val.Encode())
+
+	err := c.post(uri, nil, out)
 	return out, err
 }
 
@@ -430,8 +472,8 @@ func (c *client) OrgSecretCreate(namespace string, in *Secret) (*Secret, error) 
 // OrgSecretUpdate updates a registry.
 func (c *client) OrgSecretUpdate(namespace string, in *Secret) (*Secret, error) {
 	out := new(Secret)
-	uri := fmt.Sprintf(pathSecretsNamespace, c.addr, namespace)
-	err := c.post(uri, in, out)
+	uri := fmt.Sprintf(pathSecretsName, c.addr, namespace, in.Name)
+	err := c.patch(uri, in, out)
 	return out, err
 }
 
@@ -477,6 +519,13 @@ func (c *client) CronUpdate(owner, name, cron string, in *CronPatch) (*Cron, err
 func (c *client) CronDelete(owner, name, cron string) error {
 	uri := fmt.Sprintf(pathCron, c.addr, owner, name, cron)
 	return c.delete(uri)
+}
+
+// CronExec executes a cronjob.
+func (c *client) CronExec(owner, name, cron string) error {
+	uri := fmt.Sprintf(pathCron, c.addr, owner, name, cron)
+	err := c.post(uri, nil, nil)
+	return err
 }
 
 // Queue returns a list of enqueued builds.
@@ -568,8 +617,11 @@ func (c *client) ServerCreate() (*Server, error) {
 }
 
 // ServerDelete terminates a server.
-func (c *client) ServerDelete(name string) error {
+func (c *client) ServerDelete(name string, force bool) error {
 	uri := fmt.Sprintf(pathServer, c.addr, name)
+	if force {
+		uri = uri + "?force=true"
+	}
 	return c.delete(uri)
 }
 

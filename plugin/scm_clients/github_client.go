@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/drone/drone-go/drone"
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v33/github"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"

@@ -69,6 +69,7 @@ type RunnerDetails struct {
 	Token          string   `json:"token"`
 	Revision       string   `json:"revision"`
 	TagList        []string `json:"tag_list"`
+	RunUntagged    bool     `json:"run_untagged"`
 	Version        string   `json:"version"`
 	Locked         bool     `json:"locked"`
 	AccessLevel    string   `json:"access_level"`
@@ -96,7 +97,7 @@ type ListRunnersOptions struct {
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#list-owned-runners
-func (s *RunnersService) ListRunners(opt *ListRunnersOptions, options ...OptionFunc) ([]*Runner, *Response, error) {
+func (s *RunnersService) ListRunners(opt *ListRunnersOptions, options ...RequestOptionFunc) ([]*Runner, *Response, error) {
 	req, err := s.client.NewRequest("GET", "runners", opt, options)
 	if err != nil {
 		return nil, nil, err
@@ -116,7 +117,7 @@ func (s *RunnersService) ListRunners(opt *ListRunnersOptions, options ...OptionF
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#list-all-runners
-func (s *RunnersService) ListAllRunners(opt *ListRunnersOptions, options ...OptionFunc) ([]*Runner, *Response, error) {
+func (s *RunnersService) ListAllRunners(opt *ListRunnersOptions, options ...RequestOptionFunc) ([]*Runner, *Response, error) {
 	req, err := s.client.NewRequest("GET", "runners/all", opt, options)
 	if err != nil {
 		return nil, nil, err
@@ -135,7 +136,7 @@ func (s *RunnersService) ListAllRunners(opt *ListRunnersOptions, options ...Opti
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#get-runner-39-s-details
-func (s *RunnersService) GetRunnerDetails(rid interface{}, options ...OptionFunc) (*RunnerDetails, *Response, error) {
+func (s *RunnersService) GetRunnerDetails(rid interface{}, options ...RequestOptionFunc) (*RunnerDetails, *Response, error) {
 	runner, err := parseID(rid)
 	if err != nil {
 		return nil, nil, err
@@ -174,7 +175,7 @@ type UpdateRunnerDetailsOptions struct {
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#update-runner-39-s-details
-func (s *RunnersService) UpdateRunnerDetails(rid interface{}, opt *UpdateRunnerDetailsOptions, options ...OptionFunc) (*RunnerDetails, *Response, error) {
+func (s *RunnersService) UpdateRunnerDetails(rid interface{}, opt *UpdateRunnerDetailsOptions, options ...RequestOptionFunc) (*RunnerDetails, *Response, error) {
 	runner, err := parseID(rid)
 	if err != nil {
 		return nil, nil, err
@@ -199,7 +200,7 @@ func (s *RunnersService) UpdateRunnerDetails(rid interface{}, opt *UpdateRunnerD
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#remove-a-runner
-func (s *RunnersService) RemoveRunner(rid interface{}, options ...OptionFunc) (*Response, error) {
+func (s *RunnersService) RemoveRunner(rid interface{}, options ...RequestOptionFunc) (*Response, error) {
 	runner, err := parseID(rid)
 	if err != nil {
 		return nil, err
@@ -230,7 +231,7 @@ type ListRunnerJobsOptions struct {
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#list-runner-39-s-jobs
-func (s *RunnersService) ListRunnerJobs(rid interface{}, opt *ListRunnerJobsOptions, options ...OptionFunc) ([]*Job, *Response, error) {
+func (s *RunnersService) ListRunnerJobs(rid interface{}, opt *ListRunnerJobsOptions, options ...RequestOptionFunc) ([]*Job, *Response, error) {
 	runner, err := parseID(rid)
 	if err != nil {
 		return nil, nil, err
@@ -262,7 +263,7 @@ type ListProjectRunnersOptions ListRunnersOptions
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#list-project-s-runners
-func (s *RunnersService) ListProjectRunners(pid interface{}, opt *ListProjectRunnersOptions, options ...OptionFunc) ([]*Runner, *Response, error) {
+func (s *RunnersService) ListProjectRunners(pid interface{}, opt *ListProjectRunnersOptions, options ...RequestOptionFunc) ([]*Runner, *Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, nil, err
@@ -296,7 +297,7 @@ type EnableProjectRunnerOptions struct {
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#enable-a-runner-in-project
-func (s *RunnersService) EnableProjectRunner(pid interface{}, opt *EnableProjectRunnerOptions, options ...OptionFunc) (*Runner, *Response, error) {
+func (s *RunnersService) EnableProjectRunner(pid interface{}, opt *EnableProjectRunnerOptions, options ...RequestOptionFunc) (*Runner, *Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, nil, err
@@ -321,7 +322,7 @@ func (s *RunnersService) EnableProjectRunner(pid interface{}, opt *EnableProject
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#disable-a-runner-from-project
-func (s *RunnersService) DisableProjectRunner(pid interface{}, runner int, options ...OptionFunc) (*Response, error) {
+func (s *RunnersService) DisableProjectRunner(pid interface{}, runner int, options ...RequestOptionFunc) (*Response, error) {
 	project, err := parseID(pid)
 	if err != nil {
 		return nil, err
@@ -336,27 +337,78 @@ func (s *RunnersService) DisableProjectRunner(pid interface{}, runner int, optio
 	return s.client.Do(req, nil)
 }
 
+// ListGroupsRunnersOptions represents the available ListGroupsRunners() options.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ee/api/runners.html#list-groups-runners
+type ListGroupsRunnersOptions struct {
+	ListOptions
+	Type    *string  `url:"type,omitempty" json:"type,omitempty"`
+	Status  *string  `url:"status,omitempty" json:"status,omitempty"`
+	TagList []string `url:"tag_list,comma,omitempty" json:"tag_list,omitempty"`
+}
+
+// ListGroupsRunners lists all runners (specific and shared) available in the
+// group as well it’s ancestor groups. Shared runners are listed if at least one
+// shared runner is defined.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ee/api/runners.html#list-groups-runners
+func (s *RunnersService) ListGroupsRunners(gid interface{}, opt *ListGroupsRunnersOptions, options ...RequestOptionFunc) ([]*Runner, *Response, error) {
+	group, err := parseID(gid)
+	if err != nil {
+		return nil, nil, err
+	}
+	u := fmt.Sprintf("groups/%s/runners", pathEscape(group))
+
+	req, err := s.client.NewRequest("GET", u, opt, options)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	var rs []*Runner
+	resp, err := s.client.Do(req, &rs)
+	if err != nil {
+		return nil, resp, err
+	}
+
+	return rs, resp, err
+}
+
 // RegisterNewRunnerOptions represents the available RegisterNewRunner()
 // options.
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#register-a-new-runner
 type RegisterNewRunnerOptions struct {
-	Token          *string  `url:"token" json:"token"`
-	Description    *string  `url:"description,omitempty" json:"description,omitempty"`
-	Info           *string  `url:"info,omitempty" json:"info,omitempty"`
-	Active         *bool    `url:"active,omitempty" json:"active,omitempty"`
-	Locked         *bool    `url:"locked,omitempty" json:"locked,omitempty"`
-	RunUntagged    *bool    `url:"run_untagged,omitempty" json:"run_untagged,omitempty"`
-	TagList        []string `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
-	MaximumTimeout *int     `url:"maximum_timeout,omitempty" json:"maximum_timeout,omitempty"`
+	Token          *string                       `url:"token" json:"token"`
+	Description    *string                       `url:"description,omitempty" json:"description,omitempty"`
+	Info           *RegisterNewRunnerInfoOptions `url:"info,omitempty" json:"info,omitempty"`
+	Active         *bool                         `url:"active,omitempty" json:"active,omitempty"`
+	Locked         *bool                         `url:"locked,omitempty" json:"locked,omitempty"`
+	RunUntagged    *bool                         `url:"run_untagged,omitempty" json:"run_untagged,omitempty"`
+	TagList        []string                      `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
+	MaximumTimeout *int                          `url:"maximum_timeout,omitempty" json:"maximum_timeout,omitempty"`
+}
+
+// RegisterNewRunnerInfoOptions represents the info hashmap parameter in
+// RegisterNewRunnerOptions.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/runners.html#register-a-new-runner
+type RegisterNewRunnerInfoOptions struct {
+	Name         *string `url:"name,omitempty" json:"name,omitempty"`
+	Version      *string `url:"version,omitempty" json:"version,omitempty"`
+	Revision     *string `url:"revision,omitempty" json:"revision,omitempty"`
+	Platform     *string `url:"platform,omitempty" json:"platform,omitempty"`
+	Architecture *string `url:"architecture,omitempty" json:"architecture,omitempty"`
 }
 
 // RegisterNewRunner registers a new Runner for the instance.
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#register-a-new-runner
-func (s *RunnersService) RegisterNewRunner(opt *RegisterNewRunnerOptions, options ...OptionFunc) (*Runner, *Response, error) {
+func (s *RunnersService) RegisterNewRunner(opt *RegisterNewRunnerOptions, options ...RequestOptionFunc) (*Runner, *Response, error) {
 	req, err := s.client.NewRequest("POST", "runners", opt, options)
 	if err != nil {
 		return nil, nil, err
@@ -380,12 +432,25 @@ type DeleteRegisteredRunnerOptions struct {
 	Token *string `url:"token" json:"token"`
 }
 
-// DeleteRegisteredRunner registers a new Runner for the instance.
+// DeleteRegisteredRunner deletes a Runner by Token.
 //
 // GitLab API docs:
-// https://docs.gitlab.com/ce/api/runners.html#delete-a-registered-runner
-func (s *RunnersService) DeleteRegisteredRunner(opt *DeleteRegisteredRunnerOptions, options ...OptionFunc) (*Response, error) {
+// https://docs.gitlab.com/ce/api/runners.html#delete-a-runner-by-authentication-token
+func (s *RunnersService) DeleteRegisteredRunner(opt *DeleteRegisteredRunnerOptions, options ...RequestOptionFunc) (*Response, error) {
 	req, err := s.client.NewRequest("DELETE", "runners", opt, options)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.client.Do(req, nil)
+}
+
+// DeleteRegisteredRunnerByID deletes a Runner by ID.
+//
+// GitLab API docs:
+// https://docs.gitlab.com/ce/api/runners.html#delete-a-runner-by-id
+func (s *RunnersService) DeleteRegisteredRunnerByID(rid int, options ...RequestOptionFunc) (*Response, error) {
+	req, err := s.client.NewRequest("DELETE", fmt.Sprintf("runners/%d", rid), nil, options)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +471,7 @@ type VerifyRegisteredRunnerOptions struct {
 //
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#verify-authentication-for-a-registered-runner
-func (s *RunnersService) VerifyRegisteredRunner(opt *VerifyRegisteredRunnerOptions, options ...OptionFunc) (*Response, error) {
+func (s *RunnersService) VerifyRegisteredRunner(opt *VerifyRegisteredRunnerOptions, options ...RequestOptionFunc) (*Response, error) {
 	req, err := s.client.NewRequest("POST", "runners/verify", opt, options)
 	if err != nil {
 		return nil, err

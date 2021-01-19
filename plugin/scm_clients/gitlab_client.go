@@ -17,9 +17,15 @@ type GitlabClient struct {
 }
 
 func NewGitLabClient(ctx context.Context, uuid uuid.UUID, server string, token string, repo drone.Repo) (ScmClient, error) {
-	client := gitlab.NewClient(nil, token)
+	var client *gitlab.Client
+	var err error
 	if server != "" {
-		client.SetBaseURL(server)
+		client, err = gitlab.NewClient(token, gitlab.WithBaseURL(server))
+	} else {
+		client, err = gitlab.NewClient(token)
+	}
+	if err != nil {
+		return nil, err
 	}
 	return GitlabClient{
 		delegate: client,

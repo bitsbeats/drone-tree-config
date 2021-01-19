@@ -49,6 +49,9 @@ type Client interface {
 	// UserDelete deletes a user account.
 	UserDelete(login string) error
 
+	// Incomplete returns a list of incomplete builds.
+	Incomplete() ([]*Repo, error)
+
 	// Repo returns a repository by name.
 	Repo(namespace, name string) (*Repo, error)
 
@@ -59,6 +62,10 @@ type Client interface {
 	// RepoListSync returns a list of all repositories to which
 	// the user has explicit access in the host system.
 	RepoListSync() ([]*Repo, error)
+
+	// RepoListAll returns a list of all repositories in
+	// the database. This is only available to system admins.
+	RepoListAll(opts ListOptions) ([]*Repo, error)
 
 	// RepoEnable activates a repository.
 	RepoEnable(namespace, name string) (*Repo, error)
@@ -88,6 +95,9 @@ type Client interface {
 	// BuildList returns a list of recent builds for the
 	// the specified repository.
 	BuildList(namespace, name string, opts ListOptions) ([]*Build, error)
+
+	// BuildCreate creates a new build by branch or commit.
+	BuildCreate(owner, name, commit, branch string, params map[string]string) (*Build, error)
 
 	// BuildRestart re-starts a build.
 	BuildRestart(namespace, name string, build int, params map[string]string) (*Build, error)
@@ -165,6 +175,9 @@ type Client interface {
 	// CronUpdate enables a cronjob.
 	CronUpdate(owner, name, cron string, in *CronPatch) (*Cron, error)
 
+	// CronExec executes a cronjob.
+	CronExec(owner, name, cron string) error
+
 	// Sign signs the yaml file.
 	Sign(owner, name, file string) (string, error)
 
@@ -212,7 +225,7 @@ type Client interface {
 	ServerCreate() (*Server, error)
 
 	// ServerDelete terminates a server.
-	ServerDelete(name string) error
+	ServerDelete(name string, force bool) error
 
 	// AutoscalePause pauses the autoscaler.
 	AutoscalePause() error

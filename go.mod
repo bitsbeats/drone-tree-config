@@ -3,17 +3,21 @@ module github.com/bitsbeats/drone-tree-config
 go 1.13
 
 require (
-	github.com/drone/drone-go v1.0.4
-	github.com/google/go-github v17.0.0+incompatible
-	github.com/google/uuid v1.1.1
-	github.com/kelseyhightower/envconfig v1.3.0
-	github.com/sirupsen/logrus v1.4.1
-	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/drone/drone-go v1.5.0
+	github.com/golang/protobuf v1.4.3 // indirect
+	github.com/google/go-github/v33 v33.0.0
+	github.com/google/uuid v1.1.5
+	github.com/hashicorp/go-retryablehttp v0.6.8 // indirect
+	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/sirupsen/logrus v1.7.0
+	github.com/stretchr/testify v1.7.0 // indirect
 	github.com/wbrefvem/go-bitbucket v0.0.0-20190128183802-fc08fd046abb
-	github.com/xanzy/go-gitlab v0.28.0
-	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3 // indirect
-	golang.org/x/oauth2 v0.0.0-20190402181905-9f3314589c9a
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58 // indirect
-	golang.org/x/sys v0.0.0-20190412213103-97732733099d // indirect
-	gopkg.in/yaml.v2 v2.2.2
+	github.com/xanzy/go-gitlab v0.42.0
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
+	golang.org/x/oauth2 v0.0.0-20210113205817-d3ed898aa8a3
+	golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 // indirect
+	golang.org/x/time v0.0.0-20201208040808-7e3f01d25324 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
 )

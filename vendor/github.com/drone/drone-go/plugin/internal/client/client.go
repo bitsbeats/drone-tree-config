@@ -21,14 +21,15 @@ import (
 	"crypto/tls"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
 
+	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/internal/aesgcm"
 
-	"github.com/99designs/httpsignatures-go"
+	httpsignatures "github.com/99designs/httpsignatures-go"
 )
 
 // DefaultClient is the default http.Client.
@@ -89,12 +90,8 @@ type Client struct {
 	SkipVerify bool
 }
 
-// Do makes an http.Request to the target endpoint.
-func (s *Client) Do(in, out interface{}) error {
-	ctx := context.Background()
-	ctx, cancel := context.WithTimeout(ctx, time.Minute)
-	defer cancel()
-
+// Do makes an http.Request to the target endpoint using the context provided.
+func (s *Client) Do(ctx context.Context, in, out interface{}) error {
 	data, err := json.Marshal(in)
 	if err != nil {
 		return err
@@ -118,10 +115,17 @@ func (s *Client) Do(in, out interface{}) error {
 	}
 
 	res, err := s.client().Do(req)
+	if res != nil && res.Body != nil {
+		defer func() {
+			// drain the response body so we can reuse
+			// this connection.
+			io.Copy(ioutil.Discard, io.LimitReader(res.Body, 4096))
+			res.Body.Close()
+		}()
+	}
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -129,24 +133,22 @@ func (s *Client) Do(in, out interface{}) error {
 	}
 
 	if res.StatusCode > 299 {
-		// if the response body includes an error message
-		// we should return the error string.
-		if len(body) != 0 {
-			return errors.New(
-				string(body),
-			)
-		}
+		err := new(drone.Error)
+		err.Code = res.StatusCode
+		err.Message = string(body)
+
 		// if the response body is empty we should return
 		// the default status code text.
-		return errors.New(
-			http.StatusText(res.StatusCode),
-		)
+		if len(body) == 0 {
+			err.Message = http.StatusText(res.StatusCode)
+		}
+		return err
 	}
 
 	// if the response body return no content we exit
 	// immediately. We do not read or unmarshal the response
 	// and we do not return an error.
-	if res.StatusCode == 204 {
+	if res.StatusCode == http.StatusNoContent {
 		return nil
 	}
 
