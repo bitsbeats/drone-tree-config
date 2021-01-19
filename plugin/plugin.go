@@ -92,6 +92,15 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 
 // getConfig retrieves drone config data from the repo
 func (p *Plugin) getConfig(ctx context.Context, req *request) (string, error) {
+	logrus.WithFields(logrus.Fields{
+		"after":   req.Build.After,
+		"before":  req.Build.Before,
+		"branch":  req.Repo.Branch,
+		"ref":     req.Build.Ref,
+		"slug":    req.Repo.Slug,
+		"trigger": req.Build.Trigger,
+	}).Debugf("drone-tree-config environment")
+
 	// get changed files
 	changedFiles, err := p.getScmChanges(ctx, req)
 	if err != nil {

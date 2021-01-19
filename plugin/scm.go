@@ -51,15 +51,8 @@ func (p *Plugin) getScmChanges(ctx context.Context, req *request) ([]string, err
 		}
 	} else {
 		// use diff to get changed files
-		repoBranch := req.Repo.Branch
-		commitBranch := req.Build.Source
 		before := req.Build.Before
 		after := req.Build.After
-
-		// check for branch pr
-		if commitBranch != repoBranch {
-			before = repoBranch
-		}
 
 		// check for broken before
 		if before == "0000000000000000000000000000000000000000" || before == "" {
