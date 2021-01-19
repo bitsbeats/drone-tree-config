@@ -25,6 +25,7 @@ Currently supports
 * `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 * `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
 * `PLUGIN_ALLOW_LIST_FILE`: (Optional) Path to regex pattern file. Matches the repo slug(s) against a list of regex patterns. Defaults to `""`, match everything.
+* `PLUGIN_CACHE_TTL`: (Optional) Cache entry time to live value. When defined and greater than `0s`, enables in memory caching for request/response pairs.   
 * `PLUGIN_CONSIDER_FILE`: (Optional) Consider file name. Only consider the `.drone.yml` files listed in this file. When defined, all enabled repos must contain a consider file.
 
 Backend specific options
@@ -130,9 +131,9 @@ File: drone-tree-config-matchfile:
  If a `PLUGIN_CONSIDER_FILE` is defined, drone-tree-config will first read the content of the target file and will only consider
  the `.drone.yml` files specified, when matching.
 
-Depending on the size and the complexity of the repository, using a "consider file" can
-significantly reduce the number of API calls made to the provider (github, bitbucket, other). The reduction in API calls
-reduces the risk of being rate limited and can result in less processing time for drone-tree-config.
+Depending on the size and the complexity of the repository, using a "consider file" can significantly reduce the number 
+of API calls made to the provider (github, bitbucket, other). The reduction in API calls reduces the risk of being rate 
+limited and can result in less processing time for drone-tree-config.
 
 Given the config;
 
@@ -165,3 +166,18 @@ bar/.drone.yml
 The downside of a "consider file" is that it has to be kept in sync. As a suggestion, to help with this, a step can be
 added to each `.drone.yml` which verifies the "consider file" is in sync with the actual content of the repo. For
 example, this can be accomplished by comparing the output of `find ./ -name .drone.yml` with the content of the "consider file".
+
+#### Caching
+
+If a `PLUGIN_CACHE_TTL` is defined, drone-tree-config will leverage an in memory cache to match the inbound requests
+against ones that exist in the cache. When a match is found, the cached response is returned. Cached entries are 
+expired and removed when their per-entry TTL is reached.
+
+Example (expire after 30 minutes);
+```yaml
+ - PLUGIN_CACHE_TTL=30m
+```
+
+Depending on the size and the complexity of the repository, using a cache can significantly reduce the number of API 
+calls made to the provider (github, bitbucket, other). The reduction in API calls reduces the risk of being rate 
+limited and can result in less processing time for drone-tree-config.

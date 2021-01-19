@@ -5,12 +5,14 @@ import (
 	"io"
 	"os"
 	"testing"
+	"time"
 
 	"net/http"
 	"net/http/httptest"
 
 	"github.com/drone/drone-go/drone"
 	"github.com/drone/drone-go/plugin/config"
+	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -21,6 +23,8 @@ const mockToken = "7535706b694c63526c6e4f5230374243"
 var ts *httptest.Server
 
 func TestMain(m *testing.M) {
+	logrus.SetLevel(logrus.DebugLevel)
+
 	ts = httptest.NewServer(testMux())
 	defer ts.Close()
 	os.Exit(m.Run())
@@ -249,6 +253,64 @@ func TestCron(t *testing.T) {
 
 	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n", droneConfig.Data; want != got {
 		t.Errorf("Want %q got %q", want, got)
+	}
+}
+
+func TestCache(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			After:   "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Trigger: "@cron",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.yml",
+		},
+	}
+
+	// used to directly retrieve the cacheEntry, for verification
+	r := &request{
+		Request: req,
+		UUID:    uuid.New(),
+	}
+	ck := newCacheKey(r)
+
+	p := &Plugin{
+		server: ts.URL,
+		gitHubToken: mockToken,
+		concat: true,
+		maxDepth: 2,
+		cacheTTL: time.Minute*1,
+		cache: &configCache{},
+	}
+
+	// test cache hit
+	for i := 0; i < 2; i++ {
+		droneConfig, err := p.Find(noContext, req)
+		if err != nil {
+			t.Error(err)
+			return
+		}
+
+		if entry, ok := p.cache.retrieve(r.UUID, ck); ok {
+			if want := droneConfig.Data; entry.config != want {
+				t.Errorf("Want %q got %q", droneConfig.Data, entry.config)
+			}
+			if want := err; entry.error != want {
+				t.Errorf("Want %q got %q", want, entry.error)
+			}
+		} else {
+			t.Error("entry not in cache")
+		}
+	}
+
+	// test cache expire
+	p.cache.expire(ck)
+	entry, ok := p.cache.retrieve(r.UUID, ck)
+	if entry != nil || ok {
+		t.Error("entry still in cache")
 	}
 }
 
