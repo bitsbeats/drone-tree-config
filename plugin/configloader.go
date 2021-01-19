@@ -8,7 +8,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// getConfigForChanges scans a repository based on the changed files
+// getConfigForChanges scans a repository for drone configs based on the changed
+// files and concats them to a single file.
 func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedFiles []string) (configData string, err error) {
 	// collect drone.yml files
 	configData = ""

@@ -18,7 +18,7 @@ type GithubClient struct {
 }
 
 var (
-	lock sync.Mutex
+	lock     sync.Mutex
 	ghClient *github.Client
 )
 
