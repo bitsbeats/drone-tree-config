@@ -128,16 +128,22 @@ func (s GithubClient) GetFileListing(ctx context.Context, path string, commitRef
 
 func (s GithubClient) listFiles(ctx context.Context, number int, opts *github.ListOptions) (
 	[]*github.CommitFile, *github.Response, error) {
-	return s.delegate.PullRequests.ListFiles(ctx, s.repo.Namespace, s.repo.Name, number, opts)
+	f, resp, err := s.delegate.PullRequests.ListFiles(ctx, s.repo.Namespace, s.repo.Name, number, opts)
+	logrus.Debugf("PullRequest.ListFiles %d: %s", resp.StatusCode, resp.Request.URL)
+	return f, resp, err
 }
 
 func (s GithubClient) compareCommits(ctx context.Context, base, head string) (
 	*github.CommitsComparison, *github.Response, error) {
-	return s.delegate.Repositories.CompareCommits(ctx, s.repo.Namespace, s.repo.Name, base, head)
+	c, resp, err := s.delegate.Repositories.CompareCommits(ctx, s.repo.Namespace, s.repo.Name, base, head)
+	logrus.Debugf("Repositories.CompareCommits %d: %s", resp.StatusCode, resp.Request.URL)
+	return c, resp, err
 }
 
 func (s GithubClient) getContents(ctx context.Context, path string, commitRef string) (
-	fileContent *github.RepositoryContent, directoryContent []*github.RepositoryContent, resp *github.Response, err error) {
+	*github.RepositoryContent, []*github.RepositoryContent, *github.Response, error) {
 	opts := &github.RepositoryContentGetOptions{Ref: commitRef}
-	return s.delegate.Repositories.GetContents(ctx, s.repo.Namespace, s.repo.Name, path, opts)
+	f, d, resp, err := s.delegate.Repositories.GetContents(ctx, s.repo.Namespace, s.repo.Name, path, opts)
+	logrus.Debugf("Repositories.CompareCommits %d: %s", resp.StatusCode, resp.Request.URL)
+	return f, d, resp, err
 }
