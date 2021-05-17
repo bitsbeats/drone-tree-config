@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/bitsbeats/drone-tree-config/plugin"
 
@@ -12,21 +13,22 @@ import (
 
 type (
 	spec struct {
-		AllowListFile       string `envconfig:"PLUGIN_ALLOW_LIST_FILE"`
-		Concat              bool   `envconfig:"PLUGIN_CONCAT"`
-		MaxDepth            int    `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
-		Fallback            bool   `envconfig:"PLUGIN_FALLBACK"`
-		Debug               bool   `envconfig:"PLUGIN_DEBUG"`
-		Address             string `envconfig:"PLUGIN_ADDRESS" default:":3000"`
-		Secret              string `envconfig:"PLUGIN_SECRET"`
-		Server              string `envconfig:"SERVER" default:"https://api.github.com"`
-		GitHubToken         string `envconfig:"GITHUB_TOKEN"`
-		GitLabToken         string `envconfig:"GITLAB_TOKEN"`
-		GitLabServer        string `envconfig:"GITLAB_SERVER" default:"https://gitlab.com"`
-		BitBucketAuthServer string `envconfig:"BITBUCKET_AUTH_SERVER"`
-		BitBucketClient     string `envconfig:"BITBUCKET_CLIENT"`
-		BitBucketSecret     string `envconfig:"BITBUCKET_SECRET"`
-		ConsiderFile        string `envconfig:"PLUGIN_CONSIDER_FILE"`
+		AllowListFile       string        `envconfig:"PLUGIN_ALLOW_LIST_FILE"`
+		Concat              bool          `envconfig:"PLUGIN_CONCAT"`
+		MaxDepth            int           `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
+		Fallback            bool          `envconfig:"PLUGIN_FALLBACK"`
+		Debug               bool          `envconfig:"PLUGIN_DEBUG"`
+		Address             string        `envconfig:"PLUGIN_ADDRESS" default:":3000"`
+		Secret              string        `envconfig:"PLUGIN_SECRET"`
+		Server              string        `envconfig:"SERVER" default:"https://api.github.com"`
+		GitHubToken         string        `envconfig:"GITHUB_TOKEN"`
+		GitLabToken         string        `envconfig:"GITLAB_TOKEN"`
+		GitLabServer        string        `envconfig:"GITLAB_SERVER" default:"https://gitlab.com"`
+		BitBucketAuthServer string        `envconfig:"BITBUCKET_AUTH_SERVER"`
+		BitBucketClient     string        `envconfig:"BITBUCKET_CLIENT"`
+		BitBucketSecret     string        `envconfig:"BITBUCKET_SECRET"`
+		ConsiderFile        string        `envconfig:"PLUGIN_CONSIDER_FILE"`
+		CacheTTL            time.Duration `envconfig:"PLUGIN_CACHE_TTL"`
 	}
 )
 
@@ -66,6 +68,7 @@ func main() {
 			plugin.WithGitlabToken(spec.GitLabToken),
 			plugin.WithGitlabServer(spec.GitLabServer),
 			plugin.WithConsiderFile(spec.ConsiderFile),
+			plugin.WithCacheTTL(spec.CacheTTL),
 		),
 		spec.Secret,
 		logrus.StandardLogger(),

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/bitsbeats/drone-tree-config/plugin/scm_clients"
 	"github.com/drone/drone-go/drone"
@@ -29,6 +30,8 @@ type (
 		maxDepth      int
 		allowListFile string
 		considerFile  string
+		cacheTTL      time.Duration
+		cache         *configCache
 	}
 
 	droneConfig struct {
@@ -46,7 +49,9 @@ type (
 
 // New creates a drone plugin
 func New(options ...func(*Plugin)) config.Plugin {
-	p := &Plugin{}
+	p := &Plugin{
+		cache: &configCache{},
+	}
 	for _, opt := range options {
 		opt(p)
 	}
@@ -83,15 +88,12 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		return nil, err
 	}
 
-	configData, err := p.getConfig(ctx, &req)
-	if err != nil {
-		return nil, err
-	}
-	return &drone.Config{Data: configData}, nil
+	return p.getConfig(ctx, &req)
 }
 
-// getConfig retrieves drone config data from the repo
-func (p *Plugin) getConfig(ctx context.Context, req *request) (string, error) {
+// getConfig retrieves drone config data. When the cache is enabled, this func will first check entries in
+// the cache as well as add new entries.
+func (p *Plugin) getConfig(ctx context.Context, req *request) (*drone.Config, error) {
 	logrus.WithFields(logrus.Fields{
 		"after":   req.Build.After,
 		"before":  req.Build.Before,
@@ -101,6 +103,27 @@ func (p *Plugin) getConfig(ctx context.Context, req *request) (string, error) {
 		"trigger": req.Build.Trigger,
 	}).Debugf("drone-tree-config environment")
 
+	// check cache first, when enabled
+	ck := newCacheKey(req)
+	if p.cacheTTL > 0 {
+		if cached, exists := p.cache.retrieve(req.UUID, ck); exists {
+			if cached != nil {
+				return &drone.Config{Data: cached.config}, cached.error
+			}
+		}
+	}
+
+	// fetch the config data. cache it, when enabled
+	return p.cacheAndReturn(
+		req.UUID, ck,
+		newCacheEntry(
+			p.getConfigData(ctx, req),
+		),
+	)
+}
+
+// getConfigData retrieves drone config data from the repo
+func (p *Plugin) getConfigData(ctx context.Context, req *request) (string, error) {
 	// get changed files
 	changedFiles, err := p.getScmChanges(ctx, req)
 	if err != nil {

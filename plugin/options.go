@@ -1,5 +1,7 @@
 package plugin
 
+import "time"
+
 // WithServer configures with a custom SCM server
 func WithServer(server string) func(*Plugin) {
 	return func(p *Plugin) {
@@ -82,5 +84,12 @@ func WithAllowListFile(file string) func(*Plugin) {
 func WithConsiderFile(considerFile string) func(*Plugin) {
 	return func(p *Plugin) {
 		p.considerFile = considerFile
+	}
+}
+
+// WithCacheTTL enables request/response caching and the specified TTL for each entry
+func WithCacheTTL(ttl time.Duration) func(*Plugin) {
+	return func(p *Plugin) {
+		p.cacheTTL = ttl
 	}
 }
