@@ -278,12 +278,12 @@ func TestCache(t *testing.T) {
 	ck := newCacheKey(r)
 
 	p := &Plugin{
-		server: ts.URL,
+		server:      ts.URL,
 		gitHubToken: mockToken,
-		concat: true,
-		maxDepth: 2,
-		cacheTTL: time.Minute*1,
-		cache: &configCache{},
+		concat:      true,
+		maxDepth:    2,
+		cacheTTL:    time.Minute * 1,
+		cache:       &configCache{},
 	}
 
 	// test cache hit
@@ -452,6 +452,38 @@ func TestCronConcat(t *testing.T) {
 	}
 }
 
+func TestStarlark(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Branch:    "master",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.star",
+		},
+	}
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(false),
+		WithMaxDepth(2),
+	)
+	droneConfig, err := plugin.Find(noContext, req)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if want, got := "def main(ctx):\n  return {\n    \"kind\": \"pipeline\",\n    \"name\": \"starlark-build\",\n    \"type\": \"kubernetes\",\n    \"steps\": [\n      {\n        \"name\": \"build\",\n        \"image\": \"alpine\",\n        \"commands\": [\n            \"echo hello world\"\n        ]\n      }\n    ]\n  }\n", droneConfig.Data; want != got {
+		t.Errorf("Want %q got %q", want, got)
+	}
+}
+
 func testMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/",
@@ -472,6 +504,11 @@ func testMux() *http.ServeMux {
 	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/.drone.yml",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("testdata/github/.drone.yml.json")
+			_, _ = io.Copy(w, f)
+		})
+	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/.drone.star",
+		func(w http.ResponseWriter, r *http.Request) {
+			f, _ := os.Open("testdata/github/.drone.star.json")
 			_, _ = io.Copy(w, f)
 		})
 	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/.drone-consider",

@@ -6,6 +6,12 @@
     "path": ".drone.yml"
   },
   {
+    "type": "file",
+    "size": 262,
+    "name": ".drone.star",
+    "path": ".drone.star"
+  },
+  {
     "type": "dir",
     "size": 0,
     "name": "afolder",

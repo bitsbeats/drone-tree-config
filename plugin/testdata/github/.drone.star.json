@@ -1,0 +1,9 @@
+{
+  "name": ".drone.star",
+  "path": ".drone.star",
+  "sha": "7d01ac5aab17e36b3833b9498c1791a54452283a",
+  "size": 262,
+  "type": "file",
+  "content": "ZGVmIG1haW4oY3R4KToKICByZXR1cm4gewogICAgImtpbmQiOiAicGlwZWxpbmUiLAogICAgIm5hbWUiOiAic3RhcmxhcmstYnVpbGQiLAogICAgInR5cGUiOiAia3ViZXJuZXRlcyIsCiAgICAic3RlcHMiOiBbCiAgICAgIHsKICAgICAgICAibmFtZSI6ICJidWlsZCIsCiAgICAgICAgImltYWdlIjogImFscGluZSIsCiAgICAgICAgImNvbW1hbmRzIjogWwogICAgICAgICAgICAiZWNobyBoZWxsbyB3b3JsZCIKICAgICAgICBdCiAgICAgIH0KICAgIF0KICB9Cg==",
+  "encoding": "base64"
+}
