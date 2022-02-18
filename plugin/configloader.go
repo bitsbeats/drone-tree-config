@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"path"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
@@ -43,7 +44,7 @@ func (p *Plugin) getConfigForChanges(ctx context.Context, req *request, changedF
 			}
 
 			// append
-			configData = p.droneConfigAppend(configData, fileContent)
+			configData = p.droneConfigAppend(!strings.HasSuffix(file, ".star"), configData, fileContent)
 			if !p.concat {
 				logrus.Infof("%s concat is disabled. Using just first .drone.yml.", req.UUID)
 				break
@@ -88,7 +89,7 @@ func (p *Plugin) getConfigForTree(ctx context.Context, req *request, dir string,
 			}
 		}
 		// append
-		configData = p.droneConfigAppend(configData, fileContent)
+		configData = p.droneConfigAppend(!strings.HasSuffix(req.Repo.Config, ".star"), configData, fileContent)
 		if !p.concat {
 			logrus.Infof("%s concat is disabled. Using just first .drone.yml.", req.UUID)
 			break
@@ -109,11 +110,13 @@ func (p *Plugin) getDroneConfig(ctx context.Context, req *request, file string) 
 	// validate fileContent, exit early if an error was found
 	dc := droneConfig{}
 	err = yaml.Unmarshal([]byte(fileContent), &dc)
-	if err != nil {
+	if err != nil && !strings.HasSuffix(file, ".star") {
+		// only report a yaml parsing error if the file is not a Starlark file
 		logrus.Errorf("%s skipping: unable to parse yml file: %s %v", req.UUID, file, err)
 		return "", true, err
 	}
-	if dc.Name == "" || dc.Kind == "" {
+	if (dc.Name == "" || dc.Kind == "") && !strings.HasSuffix(file, ".star") {
+		// only look for a kind or name if the file is not a Starlark file
 		logrus.Errorf("%s skipping: missing 'kind' or 'name' in %s.", req.UUID, file)
 		return "", true, err
 	}

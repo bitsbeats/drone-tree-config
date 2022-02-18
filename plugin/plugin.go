@@ -156,9 +156,12 @@ func (p *Plugin) getConfigData(ctx context.Context, req *request) (string, error
 		return "", errors.New("did not find a .drone.yml")
 	}
 
+	logrus.Debugf("%s raw configData: %s", req.UUID, configData)
+
 	// cleanup
 	configData = removeDocEndRegex.ReplaceAllString(configData, "")
 	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
+	logrus.Debugf("%s cleaned up configData: %s", req.UUID, configData)
 	return configData, nil
 }
 
@@ -167,11 +170,11 @@ var removeDocEndRegex = regexp.MustCompile(`(?ms)^(\.\.\.)$`)
 
 // droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
 // see https://docs.drone.io/user-guide/pipeline/multi-machine/
-func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string {
+func (p *Plugin) droneConfigAppend(isYaml bool, droneConfig string, appends ...string) string {
 	for _, a := range appends {
 		a = strings.Trim(a, " \n")
 		if a != "" {
-			if !strings.HasPrefix(a, "---\n") {
+			if isYaml && !strings.HasPrefix(a, "---\n") {
 				a = "---\n" + a
 			}
 			droneConfig += a
