@@ -129,14 +129,22 @@ func (s GithubClient) GetFileListing(ctx context.Context, path string, commitRef
 func (s GithubClient) listFiles(ctx context.Context, number int, opts *github.ListOptions) (
 	[]*github.CommitFile, *github.Response, error) {
 	f, resp, err := s.delegate.PullRequests.ListFiles(ctx, s.repo.Namespace, s.repo.Name, number, opts)
-	logrus.Debugf("PullRequest.ListFiles %d: %s", resp.StatusCode, resp.Request.URL)
+	if resp != nil && resp.Request != nil && resp.Request.URL != nil {
+		logrus.Debugf("PullRequest.ListFiles %d: %s", resp.StatusCode, resp.Request.URL)
+	} else {
+		logrus.Debugf("PullRequest.ListFiles <nil> response encountered, err: %s", err.Error())
+	}
 	return f, resp, err
 }
 
 func (s GithubClient) compareCommits(ctx context.Context, base, head string) (
 	*github.CommitsComparison, *github.Response, error) {
 	c, resp, err := s.delegate.Repositories.CompareCommits(ctx, s.repo.Namespace, s.repo.Name, base, head)
-	logrus.Debugf("Repositories.CompareCommits %d: %s", resp.StatusCode, resp.Request.URL)
+	if resp != nil && resp.Request != nil && resp.Request.URL != nil {
+		logrus.Debugf("PullRequest.CompareCommits %d: %s", resp.StatusCode, resp.Request.URL)
+	} else {
+		logrus.Debugf("PullRequest.CompareCommits <nil> response encountered, err: %s", err.Error())
+	}
 	return c, resp, err
 }
 
@@ -144,6 +152,10 @@ func (s GithubClient) getContents(ctx context.Context, path string, commitRef st
 	*github.RepositoryContent, []*github.RepositoryContent, *github.Response, error) {
 	opts := &github.RepositoryContentGetOptions{Ref: commitRef}
 	f, d, resp, err := s.delegate.Repositories.GetContents(ctx, s.repo.Namespace, s.repo.Name, path, opts)
-	logrus.Debugf("Repositories.CompareCommits %d: %s", resp.StatusCode, resp.Request.URL)
+	if resp != nil && resp.Request != nil && resp.Request.URL != nil {
+		logrus.Debugf("PullRequest.GetContents %d: %s", resp.StatusCode, resp.Request.URL)
+	} else {
+		logrus.Debugf("PullRequest.GetContents <nil> response encountered, err: %s", err.Error())
+	}
 	return f, d, resp, err
 }
