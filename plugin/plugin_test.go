@@ -452,6 +452,38 @@ func TestCronConcat(t *testing.T) {
 	}
 }
 
+func TestStarlark(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Branch:    "master",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.star",
+		},
+	}
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(false),
+		WithMaxDepth(2),
+	)
+	droneConfig, err := plugin.Find(noContext, req)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if want, got := (*drone.Config)(nil), droneConfig; want != got {
+		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
+	}
+}
+
 func testMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/v3/repos/foosinn/dronetest/contents/",

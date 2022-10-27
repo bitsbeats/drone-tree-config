@@ -83,6 +83,11 @@ func (p *Plugin) Find(ctx context.Context, droneRequest *config.Request) (*drone
 		return nil, nil
 	}
 
+	// avoid running for jsonnet or starlark configurations
+	if !strings.HasSuffix(droneRequest.Repo.Config, ".yaml") && !strings.HasSuffix(droneRequest.Repo.Config, ".yml") {
+		return nil, nil
+	}
+
 	// load the considerFile entries, if configured for considerFile
 	if req.ConsiderData, err = p.newConsiderDataFromRequest(ctx, &req); err != nil {
 		return nil, err
