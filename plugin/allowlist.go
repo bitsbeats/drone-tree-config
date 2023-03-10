@@ -15,8 +15,8 @@ import (
 // returns true (match) or false (no match). false means the repo slug should be bypassed
 func (p *Plugin) allowlisted(req *request) bool {
 	slug := req.Repo.Slug
-	noMatchMsg := fmt.Sprintf("%s no match: %s", req.UUID, slug)
-	matchMsg := fmt.Sprintf("%s match: %s", req.UUID, slug)
+	noMatchMsg := fmt.Sprintf("%s NOT allowlisted for: %s", req.UUID, slug)
+	matchMsg := fmt.Sprintf("%s allowlisted for: %s", req.UUID, slug)
 
 	// requires a regex file
 	if p.allowListFile == "" {
