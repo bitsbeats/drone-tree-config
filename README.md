@@ -20,7 +20,8 @@ Currently supports
 
 * `PLUGIN_CONCAT`: Concats all found configs to a multi-machine build. Defaults to `false`.
 * `PLUGIN_FALLBACK`: Rebuild all .drone.yml if no changes where made. Defaults to `false`.
-* `PLUGIN_MAXDEPTH`: Max depth to search for `.drone.yml`, only active in fallback mode. Defaults to `2` (would still find `/a/b/.drone.yml`).
+* `PLUGIN_ALWAYS_FALLBACK`: Always rebuild all .drone.yml. Useful when repository has a global dependency, like executing tests on all projects in repo before building individual artefacts. Defaults to `false`.
+* `PLUGIN_MAXDEPTH`: Max depth to search for `.drone.yml`, only active in fallback and always fallback modes or when pipeline was triggered by cron. Defaults to `2` (would still find `/a/b/.drone.yml`).
 * `PLUGIN_DEBUG`: Set this to `true` to enable debug messages.
 * `PLUGIN_ADDRESS`: Listen address for the plugins webserver. Defaults to `:3000`.
 * `PLUGIN_SECRET`: Shared secret with drone. You can generate the token using `openssl rand -hex 16`.
