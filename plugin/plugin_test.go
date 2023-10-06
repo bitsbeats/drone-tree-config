@@ -451,7 +451,7 @@ func TestCronConcat(t *testing.T) {
 		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
 	}
 }
-func TestAlwaysFallback(t *testing.T) {
+func TestAlwaysRunAll(t *testing.T) {
 	req := &config.Request{
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
@@ -468,7 +468,7 @@ func TestAlwaysFallback(t *testing.T) {
 	plugin := New(
 		WithServer(ts.URL),
 		WithGithubToken(mockToken),
-		WithAlwaysFallback(true),
+		WithAlwaysRunAll(true),
 		WithMaxDepth(2),
 	)
 	droneConfig, err := plugin.Find(noContext, req)
@@ -481,7 +481,7 @@ func TestAlwaysFallback(t *testing.T) {
 		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
 	}
 }
-func TestAlwaysFallbackConcat(t *testing.T) {
+func TestAlwaysRunAllConcat(t *testing.T) {
 	req := &config.Request{
 		Build: drone.Build{
 			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
@@ -499,7 +499,7 @@ func TestAlwaysFallbackConcat(t *testing.T) {
 		WithServer(ts.URL),
 		WithGithubToken(mockToken),
 		WithConcat(true),
-		WithAlwaysFallback(true),
+		WithAlwaysRunAll(true),
 		WithMaxDepth(2),
 	)
 	droneConfig, err := plugin.Find(noContext, req)

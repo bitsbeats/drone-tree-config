@@ -65,10 +65,10 @@ func WithFallback(fallback bool) func(*Plugin) {
 	}
 }
 
-// WithAlwaysFallback configures with always fallback enabled or disabled
-func WithAlwaysFallback(alwaysFallback bool) func(*Plugin) {
+// WithAlwaysRunAll configures always run all enabled or disabled
+func WithAlwaysRunAll(alwaysRunAll bool) func(*Plugin) {
 	return func(p *Plugin) {
-		p.alwaysFallback = alwaysFallback
+		p.alwaysRunAll = alwaysRunAll
 	}
 }
 

@@ -25,14 +25,14 @@ type (
 		bitBucketClient     string
 		bitBucketSecret     string
 
-		concat         bool
-		fallback       bool
-		alwaysFallback bool
-		maxDepth       int
-		allowListFile  string
-		considerFile   string
-		cacheTTL       time.Duration
-		cache          *configCache
+		concat        bool
+		fallback      bool
+		alwaysRunAll  bool
+		maxDepth      int
+		allowListFile string
+		considerFile  string
+		cacheTTL      time.Duration
+		cache         *configCache
 	}
 
 	droneConfig struct {
@@ -139,8 +139,8 @@ func (p *Plugin) getConfigData(ctx context.Context, req *request) (string, error
 	// get drone.yml for changed files or all of them if no changes/cron
 	configData := ""
 
-	if p.alwaysFallback {
-		logrus.Warnf("%s always fallback enabled, rebuilding all", req.UUID)
+	if p.alwaysRunAll {
+		logrus.Warnf("%s always run all enabled, rebuilding all", req.UUID)
 		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
 		}
