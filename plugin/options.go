@@ -65,6 +65,13 @@ func WithFallback(fallback bool) func(*Plugin) {
 	}
 }
 
+// WithAlwaysRunAll configures always run all enabled or disabled
+func WithAlwaysRunAll(alwaysRunAll bool) func(*Plugin) {
+	return func(p *Plugin) {
+		p.alwaysRunAll = alwaysRunAll
+	}
+}
+
 // WithMaxDepth configures with max depth to search for 'drone.yml'. Requires fallback to be enabled.
 func WithMaxDepth(maxDepth int) func(*Plugin) {
 	return func(p *Plugin) {

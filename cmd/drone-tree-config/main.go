@@ -16,6 +16,7 @@ type (
 		AllowListFile       string        `envconfig:"PLUGIN_ALLOW_LIST_FILE"`
 		Concat              bool          `envconfig:"PLUGIN_CONCAT"`
 		MaxDepth            int           `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
+		AlwaysRunAll        bool          `envconfig:"PLUGIN_ALWAYS_RUN_ALL"`
 		Fallback            bool          `envconfig:"PLUGIN_FALLBACK"`
 		Debug               bool          `envconfig:"PLUGIN_DEBUG"`
 		Address             string        `envconfig:"PLUGIN_ADDRESS" default:":3000"`
@@ -58,6 +59,7 @@ func main() {
 		plugin.New(
 			plugin.WithConcat(spec.Concat),
 			plugin.WithFallback(spec.Fallback),
+			plugin.WithAlwaysRunAll(spec.AlwaysRunAll),
 			plugin.WithMaxDepth(spec.MaxDepth),
 			plugin.WithServer(spec.Server),
 			plugin.WithAllowListFile(spec.AllowListFile),

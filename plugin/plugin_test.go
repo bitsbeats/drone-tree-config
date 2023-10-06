@@ -451,6 +451,67 @@ func TestCronConcat(t *testing.T) {
 		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
 	}
 }
+func TestAlwaysRunAll(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.yml",
+		},
+	}
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithAlwaysRunAll(true),
+		WithMaxDepth(2),
+	)
+	droneConfig, err := plugin.Find(noContext, req)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n", droneConfig.Data; want != got {
+		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
+	}
+}
+func TestAlwaysRunAllConcat(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.yml",
+		},
+	}
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithConcat(true),
+		WithAlwaysRunAll(true),
+		WithMaxDepth(2),
+	)
+	droneConfig, err := plugin.Find(noContext, req)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n---\nkind: pipeline\nname: default\n\nsteps:\n- name: build\n  image: golang\n  commands:\n  - go build\n  - go test -short\n\n- name: integration\n  image: golang\n  commands:\n  - go test -v\n", droneConfig.Data; want != got {
+		t.Errorf("Want\n  %q\ngot\n  %q", want, got)
+	}
+}
 
 func TestStarlark(t *testing.T) {
 	req := &config.Request{
