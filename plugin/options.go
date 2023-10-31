@@ -65,6 +65,13 @@ func WithFallback(fallback bool) func(*Plugin) {
 	}
 }
 
+// WithFinalizeSupport adds dependencies to all pipelines to a user provider pipelined named `finalize`
+func WithFinalizeSupport(finalize bool) func(*Plugin) {
+	return func(p *Plugin) {
+		p.finalize = finalize
+	}
+}
+
 // WithAlwaysRunAll configures always run all enabled or disabled
 func WithAlwaysRunAll(alwaysRunAll bool) func(*Plugin) {
 	return func(p *Plugin) {

@@ -28,6 +28,7 @@ Currently supports
 * `PLUGIN_ALLOW_LIST_FILE`: (Optional) Path to regex pattern file. Matches the repo slug(s) against a list of regex patterns. Defaults to `""`, match everything.
 * `PLUGIN_CACHE_TTL`: (Optional) Cache entry time to live value. When defined and greater than `0s`, enables in memory caching for request/response pairs.
 * `PLUGIN_CONSIDER_FILE`: (Optional) Consider file name. Only consider the `.drone.yml` files listed in this file. When defined, all enabled repos must contain a consider file.
+* `PLUGIN_FINALIZE`: Adds dependencies to all other pipelines to a user provider pipelined named `finalize`.
 
 Backend specific options
 

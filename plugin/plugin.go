@@ -28,6 +28,7 @@ type (
 		concat        bool
 		fallback      bool
 		alwaysRunAll  bool
+		finalize      bool
 		maxDepth      int
 		allowListFile string
 		considerFile  string
@@ -137,61 +138,43 @@ func (p *Plugin) getConfigData(ctx context.Context, req *request) (string, error
 	}
 
 	// get drone.yml for changed files or all of them if no changes/cron
-	configData := ""
+	var dcc *DroneConfigCombiner
 
 	if p.alwaysRunAll {
 		logrus.Warnf("%s always run all enabled, rebuilding all", req.UUID)
 		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
 		}
-		configData, err = p.getConfigForTree(ctx, req, "", 0)
+		dcc, err = p.getConfigForTree(ctx, req, "", 0)
 	} else if changedFiles != nil {
-		configData, err = p.getConfigForChanges(ctx, req, changedFiles)
+		dcc, err = p.getConfigForChanges(ctx, req, changedFiles)
 	} else if req.Build.Trigger == "@cron" {
 		logrus.Warnf("%s @cron, rebuilding all", req.UUID)
 		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
 		}
-		configData, err = p.getConfigForTree(ctx, req, "", 0)
+		dcc, err = p.getConfigForTree(ctx, req, "", 0)
 	} else if p.fallback {
 		logrus.Warnf("%s no changed files and fallback enabled, rebuilding all", req.UUID)
 		if p.considerFile == "" {
 			logrus.Warnf("recursively scanning for config files with max depth %d", p.maxDepth)
 		}
-		configData, err = p.getConfigForTree(ctx, req, "", 0)
+		dcc, err = p.getConfigForTree(ctx, req, "", 0)
 	}
 	if err != nil {
 		return "", err
 	}
 
 	// no file found
-	if configData == "" {
+	if dcc == nil {
 		return "", errors.New("did not find a .drone.yml")
 	}
 
-	// cleanup
-	configData = removeDocEndRegex.ReplaceAllString(configData, "")
-	configData = string(dedupRegex.ReplaceAll([]byte(configData), []byte("---")))
+	// combine
+	configData := dcc.Combine()
+
 	return configData, nil
 }
 
 var dedupRegex = regexp.MustCompile(`(?ms)(---[\s]*){2,}`)
 var removeDocEndRegex = regexp.MustCompile(`(?ms)^(\.\.\.)$`)
-
-// droneConfigAppend concats multiple 'drone.yml's to a multi-machine pipeline
-// see https://docs.drone.io/user-guide/pipeline/multi-machine/
-func (p *Plugin) droneConfigAppend(droneConfig string, appends ...string) string {
-	for _, a := range appends {
-		a = strings.Trim(a, " \n")
-		if a != "" {
-			if !strings.HasPrefix(a, "---\n") {
-				a = "---\n" + a
-			}
-			droneConfig += a
-			if !strings.HasSuffix(droneConfig, "\n") {
-				droneConfig += "\n"
-			}
-		}
-	}
-	return droneConfig
-}

@@ -18,6 +18,7 @@ type (
 		MaxDepth            int           `envconfig:"PLUGIN_MAXDEPTH" default:"2"`
 		AlwaysRunAll        bool          `envconfig:"PLUGIN_ALWAYS_RUN_ALL"`
 		Fallback            bool          `envconfig:"PLUGIN_FALLBACK"`
+		Finalize            bool          `envconfig:"PLUGIN_FINALIZE"`
 		Debug               bool          `envconfig:"PLUGIN_DEBUG"`
 		Address             string        `envconfig:"PLUGIN_ADDRESS" default:":3000"`
 		Secret              string        `envconfig:"PLUGIN_SECRET"`
