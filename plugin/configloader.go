@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// KeyOnlyMap is a map with only keys
 type KeyOnlyMap map[string]interface{}
 
 // LoadedDroneConfig holds the name and the string content of a `.drone.yml` file
@@ -17,7 +18,7 @@ type LoadedDroneConfig struct {
 	Content string
 }
 
-// DroneConfigCombiner holts multiple LoadedDroneConfigs to combine them
+// DroneConfigCombiner holds multiple LoadedDroneConfigs to combine them
 type DroneConfigCombiner struct {
 	LoadedConfigs []*LoadedDroneConfig
 }

@@ -16,6 +16,7 @@ import (
 )
 
 type (
+	// Plugin defines the plugin settings
 	Plugin struct {
 		server              string
 		gitHubToken         string
