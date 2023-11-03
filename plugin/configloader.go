@@ -47,10 +47,14 @@ func (dcc *DroneConfigCombiner) ConfigNames(without KeyOnlyMap) []string {
 // Combine concats all appended configs in to a single string
 func (dcc *DroneConfigCombiner) Combine() string {
 	combined := ""
+	finalize := ""
+
+	// nothing to do
 	if len(dcc.LoadedConfigs) == 0 {
 		return ""
 	}
 
+	// combine all configs except finalize
 	for _, ldc := range dcc.LoadedConfigs {
 		data := ldc.Content
 
@@ -59,6 +63,7 @@ func (dcc *DroneConfigCombiner) Combine() string {
 
 			var mdc map[string]interface{}
 			_ = yaml.Unmarshal([]byte(data), &mdc)
+			logrus.Infof("finalize steps is depending on %+v", names)
 			mdc["depends_on"] = names
 			dataBytes, _ := yaml.Marshal(mdc)
 			data = string(dataBytes)
@@ -69,12 +74,21 @@ func (dcc *DroneConfigCombiner) Combine() string {
 			if !strings.HasPrefix(data, "---\n") {
 				data = "---\n" + data
 			}
-			combined += data
-			if !strings.HasSuffix(combined, "\n") {
-				combined += "\n"
+			if !strings.HasSuffix(data, "\n") {
+				data += "\n"
 			}
 		}
+
+		// skip finalize as it needs to be added at the end
+		if ldc.Name != "finalize" {
+			combined += data
+		} else {
+			finalize = data
+		}
 	}
+
+	// add finalize at the end
+	combined += finalize
 
 	// cleanup
 	combined = removeDocEndRegex.ReplaceAllString(combined, "")
