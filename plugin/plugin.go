@@ -172,7 +172,7 @@ func (p *Plugin) getConfigData(ctx context.Context, req *request) (string, error
 	}
 
 	// combine
-	configData := dcc.Combine()
+	configData := dcc.Combine(p.finalize)
 
 	return configData, nil
 }

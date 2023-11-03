@@ -45,7 +45,7 @@ func (dcc *DroneConfigCombiner) ConfigNames(without KeyOnlyMap) []string {
 }
 
 // Combine concats all appended configs in to a single string
-func (dcc *DroneConfigCombiner) Combine() string {
+func (dcc *DroneConfigCombiner) Combine(mondifyFinalizeConfig bool) string {
 	combined := ""
 	finalize := ""
 
@@ -58,7 +58,7 @@ func (dcc *DroneConfigCombiner) Combine() string {
 	for _, ldc := range dcc.LoadedConfigs {
 		data := ldc.Content
 
-		if ldc.Name == "finalize" {
+		if ldc.Name == "finalize" && mondifyFinalizeConfig {
 			names := dcc.ConfigNames(KeyOnlyMap{"finalize": nil})
 
 			var mdc map[string]interface{}
@@ -80,10 +80,10 @@ func (dcc *DroneConfigCombiner) Combine() string {
 		}
 
 		// skip finalize as it needs to be added at the end
-		if ldc.Name != "finalize" {
-			combined += data
-		} else {
+		if ldc.Name == "finalize" && mondifyFinalizeConfig {
 			finalize = data
+		} else {
+			combined += data
 		}
 	}
 
