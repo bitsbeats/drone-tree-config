@@ -76,7 +76,7 @@ func testMuxBitBucket() *http.ServeMux {
 			f, _ := os.Open("../testdata/bitbucket/token.json")
 			_, _ = io.Copy(w, f)
 		})
-	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/diffstat/2897b31ec3a1b59279a08a8ad54dc360686327f7..8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+	mux.HandleFunc("/2.0/repositories/foosinn/dronetest/diffstat/8ecad91991d5da985a2a8dd97cc19029dc1c2899..2897b31ec3a1b59279a08a8ad54dc360686327f7",
 		func(w http.ResponseWriter, r *http.Request) {
 			f, _ := os.Open("../testdata/bitbucket/compare.json")
 			_, _ = io.Copy(w, f)

@@ -100,7 +100,7 @@ func (s BitBucketClient) ChangedFilesInPullRequest(ctx context.Context, pullRequ
 
 func (s BitBucketClient) ChangedFilesInDiff(ctx context.Context, base string, head string) ([]string, error) {
 	var changedFiles []string
-	spec := fmt.Sprintf("%s..%s", base, head)
+	spec := fmt.Sprintf("%s..%s", head, base)
 	diffStat, _, err := s.delegate.DefaultApi.RepositoriesUsernameRepoSlugDiffstatSpecGet(
 		ctx, s.repo.Namespace, s.repo.Name, spec, make(map[string]interface{}))
 	if err != nil {
