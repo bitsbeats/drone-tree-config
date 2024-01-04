@@ -148,7 +148,7 @@ A local git repo clone;
 ```shell
 $ tree -a my-repo-clone/
  my-repo-clone/
- ├── .drone-consier
+ ├── .drone-consider
  ├── foo
  │   └── .drone.yml
  ├── bar
