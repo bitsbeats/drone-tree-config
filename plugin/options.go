@@ -101,6 +101,13 @@ func WithConsiderFile(considerFile string) func(*Plugin) {
 	}
 }
 
+// WithConsiderRepoConfig enable fallback to the repository 'drone.yml' when a consider file is configured but not found.
+func WithConsiderRepoConfig(considerRepoConfig bool) func(*Plugin) {
+	return func(p *Plugin) {
+		p.considerRepoConfig = considerRepoConfig
+	}
+}
+
 // WithCacheTTL enables request/response caching and the specified TTL for each entry
 func WithCacheTTL(ttl time.Duration) func(*Plugin) {
 	return func(p *Plugin) {

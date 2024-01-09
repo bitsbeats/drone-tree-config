@@ -96,6 +96,40 @@ func TestPluginWithConsider(t *testing.T) {
 	}
 }
 
+func TestPluginWithConsiderRepoConfig(t *testing.T) {
+	req := &config.Request{
+		Build: drone.Build{
+			Before: "2897b31ec3a1b59279a08a8ad54dc360686327f7",
+			After:  "8ecad91991d5da985a2a8dd97cc19029dc1c2899",
+			Source: "master",
+		},
+		Repo: drone.Repo{
+			Namespace: "foosinn",
+			Name:      "dronetest",
+			Branch:    "master",
+			Slug:      "foosinn/dronetest",
+			Config:    ".drone.yml",
+		},
+	}
+	plugin := New(
+		WithServer(ts.URL),
+		WithGithubToken(mockToken),
+		WithFallback(true),
+		WithMaxDepth(2),
+		WithConsiderFile(".no-existent-drone-consider"),
+		WithConsiderRepoConfig(true),
+	)
+	droneConfig, err := plugin.Find(noContext, req)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
+	if want, got := "---\nkind: pipeline\nname: default\n\nsteps:\n- name: frontend\n  image: node\n  commands:\n  - npm install\n  - npm test\n\n- name: backend\n  image: golang\n  commands:\n  - go build\n  - go test\n", droneConfig.Data; want != got {
+		t.Errorf("Want %q got %q", want, got)
+	}
+}
+
 func TestConcat(t *testing.T) {
 	req := &config.Request{
 		Build: drone.Build{

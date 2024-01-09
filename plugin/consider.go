@@ -33,6 +33,13 @@ func (p *Plugin) newConsiderDataFromRequest(ctx context.Context, req *request) (
 	// download considerFile from github
 	fc, err := p.getScmFile(ctx, req, p.considerFile)
 	if err != nil {
+		// use default drone config when the consider file doe not exists
+		if p.considerRepoConfig == true {
+			logrus.Infof("%s consider file %s is not present: falling back to repo config %s", req.UUID, p.considerFile, req.Repo.Config)
+			cd.listRepresentation = append(cd.listRepresentation, req.Repo.Config)
+			cd.mapRepresentation[req.Repo.Config] = true
+			return cd, nil
+		}
 		logrus.Errorf("%s skipping: %s is not present: %v", req.UUID, p.considerFile, err)
 		return cd, err
 	}
