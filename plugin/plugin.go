@@ -26,15 +26,16 @@ type (
 		bitBucketClient     string
 		bitBucketSecret     string
 
-		concat        bool
-		fallback      bool
-		alwaysRunAll  bool
-		finalize      bool
-		maxDepth      int
-		allowListFile string
-		considerFile  string
-		cacheTTL      time.Duration
-		cache         *configCache
+		concat             bool
+		fallback           bool
+		alwaysRunAll       bool
+		finalize           bool
+		maxDepth           int
+		allowListFile      string
+		considerFile       string
+		considerRepoConfig bool
+		cacheTTL           time.Duration
+		cache              *configCache
 	}
 
 	droneConfig struct {

@@ -30,6 +30,7 @@ type (
 		BitBucketClient     string        `envconfig:"BITBUCKET_CLIENT"`
 		BitBucketSecret     string        `envconfig:"BITBUCKET_SECRET"`
 		ConsiderFile        string        `envconfig:"PLUGIN_CONSIDER_FILE"`
+		ConsiderRepoConfig  bool          `envconfig:"PLUGIN_CONSIDER_REPO_CONFIG"`
 		CacheTTL            time.Duration `envconfig:"PLUGIN_CACHE_TTL"`
 	}
 )
@@ -71,6 +72,7 @@ func main() {
 			plugin.WithGitlabToken(spec.GitLabToken),
 			plugin.WithGitlabServer(spec.GitLabServer),
 			plugin.WithConsiderFile(spec.ConsiderFile),
+			plugin.WithConsiderRepoConfig(spec.ConsiderRepoConfig),
 			plugin.WithCacheTTL(spec.CacheTTL),
 		),
 		spec.Secret,
